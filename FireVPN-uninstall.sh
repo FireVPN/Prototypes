@@ -1,18 +1,18 @@
 #!/bin/bash
 echo "----------Detecting the Package-Management----------"
-declare -A osInfo;
-osInfo[/etc/redhat-release]=yum
-osInfo[/etc/arch-release]=pacman
-osInfo[/etc/gentoo-release]=emerge
-osInfo[/etc/SuSE-release]=zypp
-osInfo[/etc/debian_version]=apt-get
+haveProg() {
+    [ -x "$(which $1)" ]
+}
 
-for f in ${!osInfo[@]}
-do
-    if [[ -f $f ]];then
-        echo Package manager: ${osInfo[$f]}
-	echo "----------Uninstalling OpenVPN----------"
-	${osInfo[$f]} remove OpenVPN easy-rsa
-    fi
-done
-
+if haveProg apt-get ; then pac=apt-get
+elif haveProg yum ; then pac=yum
+elif havePrg pacman ; then pac=pacman
+fi
+if [ -z "$pac" ]; then echo "Package-Management not found! !!!Only APT-GET, YUM and PACMAN are supported" && exit
+fi
+echo "Package-Management detected ---> $pac"
+echo "----------Uninstalling OpenVPN----------"
+if [ "$pac" = "pacman" ] ; then $pac -R openvpn easy-rsa --noconfirm
+else
+$pac remove OpenVPN easy-rsa -y
+fi
