@@ -1,4 +1,6 @@
-
+cd > temp.txt
+set /p STARTDIR=<temp.txt
+del temp.txt
 echo -----OpenVPN herunterladen-----
 bitsadmin /transfer FireVPN /download /priority high http://www.openvpn.net/release/openvpn-2.1.3-install.exe c:\openvpn-install.exe
 echo -----OpenVPN installieren-----
@@ -35,3 +37,6 @@ echo(
 echo server
 echo(
 ) | openssl req -days 3650 -nodes -new -x509 -keyout %KEY_DIR%\ca.key -out %KEY_DIR%\ca.crt -config %KEY_CONFIG%
+
+
+cd %STARTDIR%

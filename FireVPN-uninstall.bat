@@ -1,4 +1,7 @@
 @echo off
+cd > temp.txt
+set /p STARTDIR=<temp.txt
+del temp.txt
 echo -----FireVPN deinstallieren-----
 if %PROCESSOR_ARCHITECTURE%==x86 (
   cd "C:\Program Files\OpenVPN"
@@ -11,3 +14,6 @@ cd ..
 timeout 5 > NUL
 del /S /Q OpenVPN
 rd /s /Q OpenVPN
+
+
+cd %STARTDIR%
