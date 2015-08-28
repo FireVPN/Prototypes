@@ -27,7 +27,7 @@ echo set KEY_ORG=FireVPN>> vars.bat
 echo set KEY_EMAIL=mail@host.domain>> vars.bat
 call vars
 call clean-all
----Funktioniert noch nicht---
+echo Zertifikate einrichtenm
 (
 echo(
 echo(
@@ -36,7 +36,7 @@ echo(
 echo(
 echo server
 echo(
-) | openssl req -days 3650 -nodes -new -x509 -keyout %KEY_DIR%\ca.key -out %KEY_DIR%\ca.crt -config %KEY_CONFIG%
+) | ..\bin\openssl req -days 3650 -nodes -new -x509 -keyout %KEY_DIR%\ca.key -out %KEY_DIR%\ca.crt -config %KEY_CONFIG%
 
 
 cd %STARTDIR%
