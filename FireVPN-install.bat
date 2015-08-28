@@ -1,3 +1,7 @@
+IF [%1] == [] (
+echo Bitte einen Parameter angeben [server/client]
+exit /b
+)
 cd > temp.txt
 set /p STARTDIR=<temp.txt
 del temp.txt
@@ -27,16 +31,36 @@ echo set KEY_ORG=FireVPN>> vars.bat
 echo set KEY_EMAIL=mail@host.domain>> vars.bat
 call vars
 call clean-all
-echo Zertifikate einrichtenm
+if %1==server (
+echo -----Zertifikate für Server einrichten-----
 (
-echo(
-echo(
-echo(
-echo(
-echo(
+echo .
+echo .
+echo .
+echo .
+echo .
+echo FireVPN
+echo .
+)| ..\bin\openssl req -days 3650 -nodes -new -x509 -keyout %KEY_DIR%\ca.key -out %KEY_DIR%\ca.crt -config %KEY_CONFIG%
+(
+echo .
+echo .
+echo .
+echo .
+echo .
 echo server
-echo(
-) | ..\bin\openssl req -days 3650 -nodes -new -x509 -keyout %KEY_DIR%\ca.key -out %KEY_DIR%\ca.crt -config %KEY_CONFIG%
-
+echo .
+)| ..\bin\openssl req -days 3650 -nodes -new -keyout %KEY_DIR%\server.key -out %KEY_DIR%\server.csr -config %KEY_CONFIG%
+(
+echo .
+echo .
+echo .
+echo .
+echo .
+echo server
+echo .
+)| ..\bin\openssl ca -days 3650 -out %KEY_DIR%\server.crt -in %KEY_DIR%\server.csr -extensions server -config %KEY_CONFIG%
+del /q %KEY_DIR%\*.old
+)
 
 cd %STARTDIR%
