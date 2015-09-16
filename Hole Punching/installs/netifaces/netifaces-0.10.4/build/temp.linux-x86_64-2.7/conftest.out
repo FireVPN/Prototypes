@@ -1,0 +1,8 @@
+creating build/temp.linux-x86_64-2.7/build
+creating build/temp.linux-x86_64-2.7/build/temp.linux-x86_64-2.7
+gcc -pthread -fno-strict-aliasing -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -D_GNU_SOURCE -fPIC -fwrapv -DNDEBUG -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -D_GNU_SOURCE -fPIC -fwrapv -fPIC -I/usr/include/python2.7 -c build/temp.linux-x86_64-2.7/conftest-0.c -o build/temp.linux-x86_64-2.7/build/temp.linux-x86_64-2.7/conftest-0.o
+build/temp.linux-x86_64-2.7/conftest-0.c: In Funktion »main«:
+build/temp.linux-x86_64-2.7/conftest-0.c:7:19: Warnung: Variable »ret« gesetzt, aber nicht verwendet [-Wunused-but-set-variable]
+               int ret;
+                   ^
+gcc -pthread build/temp.linux-x86_64-2.7/build/temp.linux-x86_64-2.7/conftest-0.o -L/usr/lib64 -o build/temp.linux-x86_64-2.7/conftest
