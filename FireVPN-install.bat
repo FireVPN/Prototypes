@@ -31,9 +31,11 @@ echo set KEY_ORG=FireVPN>> vars.bat
 echo set KEY_EMAIL=mail@host.domain>> vars.bat
 call vars
 call clean-all
+copy %STARTDIR%\client.ovpn ..\config
 if %1==server (
 echo -----Zertifikate für Server einrichten-----
 cd %HOME%
+copy %STARTDIR%\server.ovpn ..\config
 (
 echo .
 echo .
@@ -87,9 +89,9 @@ copy keys\dh1024.pem ..\config
 copy keys\server.crt ..\config
 copy keys\server.key ..\config
 mkdir ..\transfer_to_client
-copy keys\ca.crt ..\config
-copy keys\client.crt ..\config
-copy keys\client.key ..\config
+copy keys\ca.crt ..\transfer_to_client
+copy keys\client.crt ..\transfer_to_client
+copy keys\client.key ..\transfer_to_client
 explorer.exe ..\transfer_to_client
 del /q %KEY_DIR%\*.old
 )
