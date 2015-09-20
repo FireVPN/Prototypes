@@ -20,16 +20,23 @@ def receive():
     host = addr[0]
     port = addr[1]
     utf_data = data.decode('utf-8')
+
     if utf_data is 'L':
         logins.add((host, port))
         print (logins)
     if utf_data is 'R':
-        srv_socket.sendto(pickle.dumps(logins), (host, port))
+        try:
+            srv_socket.send(pickle.dumps(logins))
+        except:
+            print ("Could not send.")
         print ("sent reload.")
     if utf_data is 'LR':
         logins.add((host, port))
         print (logins)
-        srv_socket.send(pickle.dumps(logins))
+        try:
+            srv_socket.send(pickle.dumps(logins))
+        except:
+            print ("Could not send.")
         print ("sent reload.")
 
 def main():

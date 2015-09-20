@@ -12,13 +12,18 @@ import _thread as thread
 
 #sendet syn Packete aus während des hole punching prozesses
 def connect(dest_ip,dest_port):
-    connect_socket = socket.socket()
+    try:
+        connect_socket = socket.socket()
 
-    connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 
-    connect_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
-    #connect_socket.bind('', int(sys.argv[3])) => nur für loopback tests
+        connect_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
+        #connect_socket.bind('', int(sys.argv[3])) => nur für loopback tests
+    except:
+        print ("Could not set up socket.")
+        sys.exit(1)
+
     while(connect_socket.connect_ex((dest_ip, dest_port))):
         pass
     print("connected!")
@@ -26,13 +31,18 @@ def connect(dest_ip,dest_port):
 
 #listen für eingehende SYN Packets, während des hole punching prozesses. (Verbindungsannahme)
 def listen():
-    listen_socket = socket.socket()
+    try:
+        listen_socket = socket.socket()
 
-    listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 
-    listen_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
-    #listen_socket.bind('', int(sys.argv[3])) => nur für loopback tests
+        listen_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
+        #listen_socket.bind('', int(sys.argv[3])) => nur für loopback tests
+    except:
+        print ("Could not set up socket.")
+        sys.exit(1)
+
     listen_socket.listen(5)
     listen_socket.accept()
     print("connected!")
@@ -40,13 +50,17 @@ def listen():
 
 #verbindet sich mit dem Server und Server trägt Addressen ein und sendet seine vorhandenen Addressen zurück
 def connect_to_server():
-    srv_conn_socket = socket.socket()
+    try:
+        srv_conn_socket = socket.socket()
 
-    srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 
-    srv_conn_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
-    print ("socket set up")
+        srv_conn_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
+    except:
+        print ("Could not set up socket.")
+        sys.exit(1)
+
     #srv_conn_socket.bind('', int(sys.argv[3]))
     while(srv_conn_socket.connect_ex((sys.argv[4], int(sys.argv[2])))):
         pass
