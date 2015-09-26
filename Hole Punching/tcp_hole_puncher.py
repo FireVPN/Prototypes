@@ -8,64 +8,69 @@ __author__ = 'Alexander Mark, FireVPN'
 
 import sys
 import socket
+import pickle
 import _thread as thread
 
-#sendet syn Packete aus während des hole punching prozesses
+#sendet syn Packete aus waehrend des hole punching prozesses
 def connect(dest_ip,dest_port):
     try:
         connect_socket = socket.socket()
 
-        connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+        connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
 
-        connect_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
-        #connect_socket.bind('', int(sys.argv[3])) => nur für loopback tests
+        connect_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3]))) #IP + Port "zusammenfuehren"
+        #connect_socket.bind('', int(sys.argv[3])) => nur fuer loopback tests
     except:
-        print ("Could not set up socket.")
+        print ("Could not set up socket. (SYN flooding)")
         sys.exit(1)
 
-    while(connect_socket.connect_ex((dest_ip, dest_port))):
+    while(connect_socket.connect_ex((dest_ip, dest_port))): #SYN packets flooding
         pass
     print("connected!")
     thread.interrupt_main()
 
-#listen für eingehende SYN Packets, während des hole punching prozesses. (Verbindungsannahme)
+#listen fuer eingehende SYN Packets, waehrend des hole punching prozesses. (Verbindungsannahme)
 def listen():
     try:
         listen_socket = socket.socket()
 
-        listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+        listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
 
-        listen_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
-        #listen_socket.bind('', int(sys.argv[3])) => nur für loopback tests
+        listen_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))#IP + Port "zusammenfuehren"
+        #listen_socket.bind('', int(sys.argv[3])) => nur fuer loopback tests
     except:
-        print ("Could not set up socket.")
+        print ("Could not set up socket. (Listening)")
         sys.exit(1)
 
-    listen_socket.listen(5)
-    listen_socket.accept()
+    listen_socket.listen(5) #listen starten, auf das SYN flooding warten
+    listen_socket.accept() # Verbindung annehmen
     print("connected!")
     thread.interrupt_main()
 
-#verbindet sich mit dem Server und Server trägt Addressen ein und sendet seine vorhandenen Addressen zurück
+#verbindet sich mit dem Server und Server traegt Addressen ein und sendet seine vorhandenen Addressen zurueck
 def connect_to_server():
     try:
         srv_conn_socket = socket.socket()
 
-        srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)#Addresse wieder verwenden
+        srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)#Port wieder verwenden
 
-        srv_conn_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))
+        srv_conn_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))#IP + Port "zusammenfuehren"
     except:
-        print ("Could not set up socket.")
+        print ("Could not set up socket. (SRV connection)")
         sys.exit(1)
 
     #srv_conn_socket.bind('', int(sys.argv[3]))
-    while(srv_conn_socket.connect_ex((sys.argv[4], int(sys.argv[2])))):
+    while(srv_conn_socket.connect_ex((sys.argv[4], int(sys.argv[2])))):#SYN Packets an Server senden
         pass
     print("connected to server!")
-    srv_conn_socket.send("LR")
+
+    #daten von server bekommen
+    srv_conn_socket.send("LR") #Daten eintragen und liste vom server bekommen
+    #srv_conn_socket.send("R") #Daten vom server holen
+    #srv_conn_socket.send("L") #Daten in liste eintragen
 
     utf_data=""
     try:
