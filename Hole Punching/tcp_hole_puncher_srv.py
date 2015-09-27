@@ -4,20 +4,23 @@ import socket
 import sys
 import pickle
 
-port = 12345
-ip= "10.0.0.8"
+port = 9998
+ip= "10.0.0.8"#(socket.gethostbyname(socket.gethostname()))
+print (ip)
 logins = set()
-try:
-    srv_socket = socket.socket()
-    srv_socket.bind(ip, port) #auch fehlerhaft
-    #srv_socket.bind((socket.gethostbyname(srv_socket.gethostname()), port)) #IP + Port binden (socket_attribute hat die methoden laut traceback nicht)
-except:
-    print ("Could not set up socket.")
-    sys.exit(1)
+
+srv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+srv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+srv_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+
+
+    #srv_socket.bind(srv_socket.gethostname(), port) #auch fehlerhaft
+srv_socket.bind((ip, port)) #IP + Port binden
 srv_socket.listen(5) # auf Verbindungsanfragen lauschen
 
 def receive():
-    srv_socket.accept() #verbindung annehmen
+    clientsocket,addr = srv_socket.accept() #verbindung annehmen
     data, addr = srv_socket.recvfrom(1024) #daten und adresse in variablen speichern
     host = addr[0]
     port = addr[1]
@@ -29,7 +32,7 @@ def receive():
 
     if utf_data is 'R': # wenn R empfangen wurde, addressen vom set an client senden
         try:
-            srv_socket.send(pickle.dumps(logins))
+            clientsocket.send(pickle.dumps(logins))
         except:
             print ("Could not send. R")
         print ("sent reload. R")
@@ -38,10 +41,11 @@ def receive():
         logins.add((host, port))
         print (logins)
         try:
-            srv_socket.send(pickle.dumps(logins))
+            clientsocket.send(pickle.dumps(logins))
         except:
             print ("Could not send. LR")
         print ("sent reload. LR")
+    clientsocket.close()
 
 def main():
     while True:

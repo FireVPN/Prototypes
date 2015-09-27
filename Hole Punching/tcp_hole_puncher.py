@@ -11,6 +11,9 @@ import socket
 import pickle
 import _thread as thread
 
+ip=sys.argv[1]
+port =sys.argv[3]
+
 #sendet syn Packete aus waehrend des hole punching prozesses
 def connect(dest_ip,dest_port):
     try:
@@ -19,7 +22,7 @@ def connect(dest_ip,dest_port):
         connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
         connect_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
 
-        connect_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3]))) #IP + Port "zusammenfuehren"
+        connect_socket.bind((ip, port)) #IP + Port "zusammenfuehren"
         #connect_socket.bind('', int(sys.argv[3])) => nur fuer loopback tests
     except:
         print ("Could not set up socket. (SYN flooding)")
@@ -38,7 +41,7 @@ def listen():
         listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
         listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
 
-        listen_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))#IP + Port "zusammenfuehren"
+        listen_socket.bind((ip, port ))#IP + Port "zusammenfuehren"
         #listen_socket.bind('', int(sys.argv[3])) => nur fuer loopback tests
     except:
         print ("Could not set up socket. (Listening)")
@@ -57,7 +60,7 @@ def connect_to_server():
         srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)#Addresse wieder verwenden
         srv_conn_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)#Port wieder verwenden
 
-        srv_conn_socket.bind((socket.gethostbyname(socket.gethostname()), int(sys.argv[3])))#IP + Port "zusammenfuehren"
+        srv_conn_socket.bind((ip, port))#IP + Port "zusammenfuehren"
     except:
         print ("Could not set up socket. (SRV connection)")
         sys.exit(1)
@@ -74,7 +77,7 @@ def connect_to_server():
 
     utf_data=""
     try:
-        data, addr = srv_conn_socket.recvfrom(1024)
+        data= srv_conn_socket.recv(1024)
         utf_data = data.decode('utf-8')
     except:
         print ("Could not receive messages.")
