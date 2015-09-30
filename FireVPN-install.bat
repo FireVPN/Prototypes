@@ -44,7 +44,7 @@ echo .
 echo .
 echo FireVPN
 echo .
-)| openssl req -days 3650 -nodes -new -x509 -keyout %KEY_DIR%\ca.key -out %KEY_DIR%\ca.crt -config %KEY_CONFIG%
+)| ..\bin\openssl.exe req -days 3650 -nodes -new -x509 -keyout %KEY_DIR%\ca.key -out %KEY_DIR%\ca.crt -config %KEY_CONFIG%
 (
 echo .
 echo .
@@ -53,7 +53,7 @@ echo .
 echo .
 echo server
 echo .
-)| openssl req -days 3650 -nodes -new -keyout %KEY_DIR%\server.key -out %KEY_DIR%\server.csr -config %KEY_CONFIG%
+)| ..\bin\openssl.exe req -days 3650 -nodes -new -keyout %KEY_DIR%\server.key -out %KEY_DIR%\server.csr -config %KEY_CONFIG%
 (
 echo .
 echo .
@@ -62,7 +62,7 @@ echo .
 echo .
 echo server
 echo .
-)| openssl ca -days 3650 -out %KEY_DIR%\server.crt -in %KEY_DIR%\server.csr -extensions server -config %KEY_CONFIG%
+)| ..\bin\openssl.exe ca -days 3650 -out %KEY_DIR%\server.crt -in %KEY_DIR%\server.csr -extensions server -config %KEY_CONFIG%
 del /q %KEY_DIR%\*.old
 (
 echo .
@@ -72,7 +72,7 @@ echo .
 echo .
 echo client
 echo .
-)| openssl req -days 3650 -nodes -new -keyout %KEY_DIR%\client.key -out %KEY_DIR%\client.csr -config %KEY_CONFIG%
+)| ..\bin\openssl.exe req -days 3650 -nodes -new -keyout %KEY_DIR%\client.key -out %KEY_DIR%\client.csr -config %KEY_CONFIG%
 (
 echo .
 echo .
@@ -81,7 +81,7 @@ echo .
 echo .
 echo client
 echo .
-)| openssl ca -days 3650 -out %KEY_DIR%\client.crt -in %KEY_DIR%\client.csr -config %KEY_CONFIG%
+)| ..\bin\openssl.exe ca -days 3650 -out %KEY_DIR%\client.crt -in %KEY_DIR%\client.csr -config %KEY_CONFIG%
 echo -----Diffie Hellman Parameter generieren-----
 build-dh
 copy keys\ca.crt ..\config
@@ -94,5 +94,6 @@ copy keys\client.crt ..\transfer_to_client
 copy keys\client.key ..\transfer_to_client
 explorer.exe ..\transfer_to_client
 del /q %KEY_DIR%\*.old
+cd %STARTDIR%
 )
 cd %STARTDIR%
