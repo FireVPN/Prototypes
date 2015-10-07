@@ -1,5 +1,5 @@
 from PyQt4 import QtCore, QtGui
-import sys, socket, threading, time
+import sys, socket, threading, select
 
 SERV_IP = "127.0.0.1"
 SERV_PORT = 4567
@@ -79,15 +79,16 @@ class View(QtGui.QWidget):
             return str(text)
 
 class Heartbeater(threading.Thread):
-    def __init__(self):
+    def __init__(self, sock):
         threading.Thread.__init__(self)
         self.event = threading.Event()
 
-        try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        except:
-            print ("Could not set up socket.")
-            sys.exit(1)
+        # try:
+        #     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # except:
+        #     print ("Could not set up socket.")
+        #     sys.exit(1)
+        self.sock =  sock
 
     def run(self):
         while not self.event.is_set():
@@ -98,12 +99,44 @@ class Heartbeater(threading.Thread):
     def stop(self):
         self.event.set()
 
+class Receiver(threading.Thread):
+    def __init__(self, sock):
+        threading.Thread.__init__(self)
+        self.event = threading.Event()
+        self.sock = sock
+        self.sock.settimeout(3)
+
+        # try:
+        #     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        #     self.sock.bind(("localhost", 4567))
+        # except:
+        #     print ("wies not set up socket.")
+        #     sys.exit(1)
+
+    def run(self):
+        while not self.event.is_set():
+            # try:
+            #     udp_message, udp_client = self.sock.recvfrom(1024)
+            #     print ("received")
+            # except socket.timeout:
+            #     print ("test")
+            try:
+                data, addr = self.sock.recvfrom(1024)
+            except socket.timeout:
+                print ('caught a timeout')
+            #print (data.decode('utf-8'))
+            #self.logins = pickle.loads(data)
+            #self.updateMenu(self.logins)
+
+    def stop(self):
+        self.event.set()
 
 class Controller:
-    def __init__(self, view, hb):
-        #View and Heartbeater
+    def __init__(self, view, hb, rec, sock):
+        #View, Heartbeater and Receiver
         self.view = view
         self.hb = hb
+        self.rec = rec
 
         #Networking
         self.SERV = (SERV_IP, SERV_PORT)
@@ -117,11 +150,13 @@ class Controller:
         self.nickname = self.view.showNameDialog()
         print("Deine Nickname: ", self.nickname)
 
-        try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        except:
-            print ("Could not set up socket.")
-            sys.exit(1)
+        # try:
+        #     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # except:
+        #     print ("Could not set up socket.")
+        #     self.exit()
+        #     sys.exit(1)
+        self.sock = sock
 
         self.connectToServer()
 
@@ -131,6 +166,7 @@ class Controller:
     def connectToServer(self):
         try:
             self.sock.sendto(('L'+';'+self.nickname).encode('utf-8'), self.SERV)
+            self.rec.start()
             self.hb.start()
         except:
             print ("Could not send login.")
@@ -146,14 +182,22 @@ class Controller:
     def exit(self):
         self.sock.sendto(('E'+';'+self.nickname).encode('utf-8'), self.SERV)
         self.hb.stop()
-        self.sock.close()
+        self.rec.stop()
 
 def main():
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon('icon.png'))
+
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    except:
+        print ("Could not set up socket.")
+        sys.exit(1)
+
     view = View()
-    hb = Heartbeater()
-    controller = Controller(view, hb)
+    hb = Heartbeater(sock)
+    rec = Receiver(sock)
+    controller = Controller(view, hb, rec, sock)
 
     app.aboutToQuit.connect(view.sigExit)
     view.show()
