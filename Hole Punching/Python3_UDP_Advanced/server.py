@@ -36,9 +36,10 @@ class Receiver(threading.Thread):
                     for n in loginsToServer:
                         names.add(n[0])
                     print (receivedData[1], "joined.")
+                    self.broadcast(names)
                 else:
                     try:
-                        self.sock.sendto(('E'+';'+'Nickname is already present').encode('utf-8'), (host, port))
+                        self.sock.sendto(('N'+';'+'Nickname is already present').encode('utf-8'), (host, port))
                         print (receivedData[1], "_(2) tried to connect. Nickname was already present.")
                     except:
                         sys.exit(1)
@@ -58,7 +59,15 @@ class Receiver(threading.Thread):
                             loginsToServer.discard(discard)
                             names.discard(receivedData[1])
                             print (discard[0], "closed the connection.")
+                        self.broadcast(names)
                         break
+
+    def broadcast(self, obj):
+        #try:
+        for c in loginsToServer:
+            self.sock.sendto(('R'+';'+(pickle.dumps(obj).decode('ISO-8859-1'))).encode(),(c[1],c[2]))
+        #except:
+            #print ("Could not send broadcast.")
 
     def stop(self):
         self.event.set()

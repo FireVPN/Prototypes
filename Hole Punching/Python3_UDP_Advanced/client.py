@@ -1,5 +1,5 @@
 from PyQt4 import QtCore, QtGui
-import sys, socket, threading, select
+import sys, socket, threading, pickle
 
 SERV_IP = "127.0.0.1"
 SERV_PORT = 4567
@@ -23,6 +23,8 @@ class View(QtGui.QWidget):
     sigDisconnect = QtCore.pyqtSignal()
     sigRefresh = QtCore.pyqtSignal()
     sigExit = QtCore.pyqtSignal()
+    sigCB = QtCore.pyqtSignal()
+
 
     def __init__(self):
         QtGui.QWidget.__init__(self)
@@ -82,51 +84,50 @@ class Heartbeater(threading.Thread):
     def __init__(self, sock):
         threading.Thread.__init__(self)
         self.event = threading.Event()
-
-        # try:
-        #     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # except:
-        #     print ("Could not set up socket.")
-        #     sys.exit(1)
         self.sock =  sock
 
     def run(self):
         while not self.event.is_set():
             self.sock.sendto(('H'+';').encode('utf-8'), (SERV_IP, SERV_PORT))
             self.event.wait(10)
-            #print(time.time())
 
     def stop(self):
         self.event.set()
 
 class Receiver(threading.Thread):
-    def __init__(self, sock):
+    def __init__(self, sock, view):
         threading.Thread.__init__(self)
         self.event = threading.Event()
+        self.view = view
         self.sock = sock
-        self.sock.settimeout(3)
-
-        # try:
-        #     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        #     self.sock.bind(("localhost", 4567))
-        # except:
-        #     print ("wies not set up socket.")
-        #     sys.exit(1)
+        self.sock.settimeout(1)
 
     def run(self):
         while not self.event.is_set():
-            # try:
-            #     udp_message, udp_client = self.sock.recvfrom(1024)
-            #     print ("received")
-            # except socket.timeout:
-            #     print ("test")
             try:
                 data, addr = self.sock.recvfrom(1024)
+                print (data.decode('utf-8'))
+                host = addr[0]
+                port = addr[1]
+                receivedData = data.decode('utf-8').split(';')
+                indicator = receivedData[0]
+
+                if indicator is 'N':
+                    print ("Nickname already present.")
+                    # Try to close window OR show message, text in window
+                    #self.view.sigExit.emit()
+                    sys.exit(1)
+                elif indicator is 'R':
+                    self.names = pickle.loads(receivedData[1].encode('ISO-8859-1'))
+                    self.view.comboBox.clear()
+                    for n in self.names:
+                        #UPDATE  ComboBox
+                        print ("CB Update")
+                    print (self.names)
+                    print ("Got new list.")
+
             except socket.timeout:
                 print ('caught a timeout')
-            #print (data.decode('utf-8'))
-            #self.logins = pickle.loads(data)
-            #self.updateMenu(self.logins)
 
     def stop(self):
         self.event.set()
@@ -150,12 +151,6 @@ class Controller:
         self.nickname = self.view.showNameDialog()
         print("Deine Nickname: ", self.nickname)
 
-        # try:
-        #     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # except:
-        #     print ("Could not set up socket.")
-        #     self.exit()
-        #     sys.exit(1)
         self.sock = sock
 
         self.connectToServer()
@@ -196,7 +191,7 @@ def main():
 
     view = View()
     hb = Heartbeater(sock)
-    rec = Receiver(sock)
+    rec = Receiver(sock, view)
     controller = Controller(view, hb, rec, sock)
 
     app.aboutToQuit.connect(view.sigExit)
