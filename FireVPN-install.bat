@@ -21,7 +21,7 @@ if %PROCESSOR_ARCHITECTURE%==x86 (
 ) else (
   echo set HOME="C:\Program Files (x86)\OpenVPN\easy-rsa"> vars.bat
 )
-echo set KEY_CONFIG=openssl.cnf>> vars.bat
+echo set KEY_CONFIG=%HOME%\openssl.cnf>> vars.bat
 echo set KEY_DIR=.\keys>> vars.bat
 echo set KEY_SIZE=1024>> vars.bat
 echo set KEY_COUNTRY=AT>> vars.bat
@@ -53,12 +53,15 @@ echo .
 echo .
 echo server
 echo .
-echo FireVPNPasswort
-echo .
 )| ..\bin\openssl.exe req -days 3650 -nodes -new -keyout %KEY_DIR%\server.key -out %KEY_DIR%\server.csr -config %KEY_CONFIG%
 (
-echo y
-echo y
+echo .
+echo .
+echo .
+echo .
+echo .
+echo server
+echo .
 )| ..\bin\openssl.exe ca -days 3650 -out %KEY_DIR%\server.crt -in %KEY_DIR%\server.csr -extensions server -config %KEY_CONFIG%
 del /q %KEY_DIR%\*.old
 (
@@ -69,12 +72,15 @@ echo .
 echo .
 echo client
 echo .
-echo FireVPNPasswort
-echo .
 )| ..\bin\openssl.exe req -days 3650 -nodes -new -keyout %KEY_DIR%\client.key -out %KEY_DIR%\client.csr -config %KEY_CONFIG%
 (
-echo y
-echo y
+echo .
+echo .
+echo .
+echo .
+echo .
+echo client
+echo .
 )| ..\bin\openssl.exe ca -days 3650 -out %KEY_DIR%\client.crt -in %KEY_DIR%\client.csr -config %KEY_CONFIG%
 echo -----Diffie Hellman Parameter generieren-----
 build-dh
@@ -86,9 +92,14 @@ mkdir ..\transfer_to_client
 copy keys\ca.crt ..\transfer_to_client
 copy keys\client.crt ..\transfer_to_client
 copy keys\client.key ..\transfer_to_client
-echo "nach C:\\Programme\Openvpn\config" > ..\transfer_to_client\readme.txt
 explorer.exe ..\transfer_to_client
 del /q %KEY_DIR%\*.old
 cd %STARTDIR%
 )
 cd %STARTDIR%
+powershell "cd '%HOME%\..\bin\'; $temp=.\openvpn.exe --show-adapters | select-object -last 1 ; $temp.Split()[0]" > tmp.txt
+set /p adaptername=<tmp.txt
+set adaptername=%adaptername:~1,-1%
+echo %adaptername%
+netsh interface set interface name=%adaptername% newname="MyTap"
+del tmp.txt
