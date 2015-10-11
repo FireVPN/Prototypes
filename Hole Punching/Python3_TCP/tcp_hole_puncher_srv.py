@@ -3,7 +3,8 @@ __author__ = 'Alexander Mark, FireVPN'
 import socket
 import sys
 import pickle
-import _thread as thread
+#import _thread as thread
+import threading as thread
 
 port = 9999
 ip= "10.0.0.10"#(socket.gethostbyname(socket.gethostname()))
@@ -29,18 +30,19 @@ def receive(clientsocket):
         #port = addr[1]
         utf_data = data.decode('utf-8') #charset fuer daten festlegen
         print (utf_data)
-        if utf_data is 'L': #wenn L empfangen wurde, addresse in set eintragen
+
+        if utf_data == 'L': #wenn L empfangen wurde, addresse in set eintragen
             logins.add(addr)
             print (logins)
 
-        if utf_data is 'R': # wenn R empfangen wurde, addressen vom set an client senden
+        if utf_data == 'R': # wenn R empfangen wurde, addressen vom set an client senden
             try:
                 clientsocket[0].send(pickle.dumps(logins))
             except:
                 print ("Could not send. R")
             print ("sent reload. R")
 
-        if utf_data is 'LR': # wenn LR empfangen wurde, addressen in set speichern, und danach zuruecksenden an Client
+        if utf_data ==  "LR": # wenn LR empfangen wurde, addressen in set speichern, und danach zuruecksenden an Client
             logins.add(addr)
             print (logins)
             try:
@@ -52,9 +54,11 @@ def receive(clientsocket):
         if utf_data is 'CLOSE': # wenn CLOSE empfangen wurde, Verbindung trennen
             clientsocket.close()
 
+
+
 def main():
     while True:
-        thread.start_new_thread(receive(clientsocket=srv_socket.accept()))# bei annahme der Verbindung recive() aufrufen
+        thread.Thread(target=receive(srv_socket.accept())).start() #mutlithreaded verbindungen annehmen und verarbeiten
 
 if __name__ == '__main__':
     main()

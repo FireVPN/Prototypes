@@ -1,1 +1,1 @@
-Dies ist das Hauptverzeichnis von FireVPN
+Dies ist das Hauptverzeichnis von FireVPN.
