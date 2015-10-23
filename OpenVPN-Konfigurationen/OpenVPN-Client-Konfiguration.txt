@@ -2,15 +2,15 @@
 client
 
 # Windows benötigt TAP, andere Systeme können TUNneln
-dev tap
+dev <tun/tap>
 
 # TAP-Adapter-Name (für Windows-Systeme)
-dev-node MyTap
+;dev-node MyTap
 
-proto tcp
+proto <udp/tcp>
 
 # The hostname/IP and port of the server.
-remote 178.190.196.4 6222
+remote my-server-1 1194
 ;remote my-server-2 1194
 
 # Keep trying indefinitely to resolve the
