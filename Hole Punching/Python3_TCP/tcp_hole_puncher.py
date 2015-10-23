@@ -12,7 +12,7 @@ import pickle
 import _thread as thread
 
 ip=sys.argv[1]
-port =sys.argv[3]
+port =int(sys.argv[3])
 
 #sendet syn Packete aus waehrend des hole punching prozesses
 def connect(dest_ip,dest_port):
@@ -70,18 +70,17 @@ def connect_to_server():
         pass
     print("connected to server!")
 
-    #daten von server bekommen
-    srv_conn_socket.send("LR") #Daten eintragen und liste vom server bekommen
+    #daten von server bekommen/anfordern/senden
+    srv_conn_socket.send(b'LR') #Daten eintragen und liste vom server bekommen
+    print ("LR sent")
     #srv_conn_socket.send("R") #Daten vom server holen
     #srv_conn_socket.send("L") #Daten in liste eintragen
 
-    utf_data=""
-    try:
-        data= srv_conn_socket.recv(1024)
-        utf_data = data.decode('utf-8')
-    except:
-        print ("Could not receive messages.")
-        sys.exit(1)
+    data= srv_conn_socket.recv(1024) #daten von server erhalten
+    print ("recived...")
+    utf_data = data.decode('utf-8')
+
+
     print(utf_data)
 
     thread.interrupt_main()
@@ -96,6 +95,4 @@ def main():
     while True:
         pass
 
-if __name__ == '__main__':
-    main()
 
