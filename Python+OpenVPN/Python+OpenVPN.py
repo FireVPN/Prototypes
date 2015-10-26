@@ -1,20 +1,24 @@
 __author__ = 'Elias Eckenfellner'
-import time, sys
+import time, sys, socket
 IP="192.168.0.1"
-PORT="90"
+PORT="6222"
 
 class Client():
-    def __init__(self, ip):
+    def __init__(self):
         self.send()
     def send(self):
-        ip = self.variable.get()
-        port = None
         try:
-            self.sock.sendto(self.text.get().encode('utf-8'), (IP, PORT))
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        except:
+            print ("UDP-Socket konnte nicht geöffnet werden!")
+            sys.exit(1)
+        try:
+            sock.sendto("Hier wird ein UDP-Socket geöffnet!".encode('utf-8'), (IP, PORT))
             time.sleep(1)
         except:
-            print ("Open UDP Socket")
+            print ("Über den UDP-Socket konnte nichts gesendet werden!")
             sys.exit(1)
+        print ("Socket steht und es wurde schon darüber übertragen")
 
 def main():
     client = Client()
