@@ -4,7 +4,6 @@ import sys
 import socket
 import pickle
 import threading as thread
-#import _thread as thread
 from PyQt4 import QtGui, QtCore
 
 
@@ -39,7 +38,7 @@ class Client(QtGui.QWidget):
 
         #connect to client button erstellen
         qbtn_connect_client = QtGui.QPushButton('Connect to Client', self)
-        QtGui.QWidget.connect(qbtn_connect_client, QtCore.SIGNAL("clicked()"), self.init_client_connect)
+        QtGui.QWidget.connect(qbtn_connect_client, QtCore.SIGNAL("clicked()"), lambda: self.init_client_connect)
         #qbtn_connect_client.clicked.connect(Controller.foo(self))
         qbtn_connect_client.resize(qbtn_connect_client.sizeHint())
         qbtn_connect_client.move(100, 30)
