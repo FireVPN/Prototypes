@@ -72,8 +72,14 @@ class Client(QtGui.QWidget):
 
         t1=thread.Thread(target=self.connect_to_client(ip, port))
         t2=thread.Thread(target=self.listen())
+
+        #port um 1 erhoehen/verringern => NAT Heuristik
+        t3=thread.Thread(target=self.connect_to_client(ip, port))
+        t4=thread.Thread(target=self.connect_to_client(ip, port))
         t1.start()
         t2.start()
+        t3.start()
+        t4.start()
 
 
     #sendet syn Packete aus waehrend des hole punching prozesses
