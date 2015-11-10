@@ -21,7 +21,7 @@ except AttributeError:
 class View(QtGui.QWidget):
     sigConnect = QtCore.pyqtSignal()
     sigDisconnect = QtCore.pyqtSignal()
-    sigRefresh = QtCore.pyqtSignal()
+    # sigRefresh = QtCore.pyqtSignal()
     sigExit = QtCore.pyqtSignal()
     sigCB = QtCore.pyqtSignal()
 
@@ -32,7 +32,7 @@ class View(QtGui.QWidget):
 
     def setupUi(self, Widget):
         Widget.setObjectName(_fromUtf8("Widget"))
-        Widget.resize(538, 301)
+        Widget.resize(530, 300)
         self.verticalLayout = QtGui.QVBoxLayout(Widget)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.gridLayout = QtGui.QGridLayout()
@@ -46,9 +46,9 @@ class View(QtGui.QWidget):
         self.pushButton_4.setEnabled(True)
         self.pushButton_4.setObjectName(_fromUtf8("pushButton_4"))
         self.verticalLayout_2.addWidget(self.pushButton_4)
-        self.pushButton = QtGui.QPushButton(Widget)
-        self.pushButton.setObjectName(_fromUtf8("pushButton"))
-        self.verticalLayout_2.addWidget(self.pushButton)
+        # self.pushButton = QtGui.QPushButton(Widget)
+        # self.pushButton.setObjectName(_fromUtf8("pushButton"))
+        # self.verticalLayout_2.addWidget(self.pushButton)
         self.gridLayout.addLayout(self.verticalLayout_2, 0, 1, 1, 1)
         self.textBrowser_2 = QtGui.QTextEdit(Widget)
         self.textBrowser_2.setObjectName(_fromUtf8("textBrowser_2"))
@@ -68,17 +68,19 @@ class View(QtGui.QWidget):
         Widget.setWindowTitle(_translate("Widget", "UDP Hole Puncher NG", None))
         self.pushButton_3.setText(_translate("Widget", "Connect", None))
         self.pushButton_4.setText(_translate("Widget", "Disconnect", None))
-        self.pushButton.setText(_translate("Widget", "Refresh", None))
+        # self.pushButton.setText(_translate("Widget", "Refresh", None))
         self.pushButton_3.clicked.connect(lambda x: self.sigConnect.emit())
         self.pushButton_4.clicked.connect(lambda x: self.sigDisconnect.emit())
-        self.pushButton.clicked.connect(lambda x: self.sigRefresh.emit())
+        # self.pushButton.clicked.connect(lambda x: self.sigRefresh.emit())
 
     def showNameDialog(self):
         text, ok = QtGui.QInputDialog.getText(self, 'UDP Hole Puncher NG',
             'Geben Sie einen Nicknamen ein:')
+        while not ok:
+            text, ok = QtGui.QInputDialog.getText(self, 'UDP Hole Puncher NG',
+            'Fehler! Geben Sie einen Nicknamen ein:')
+        return str(text)
 
-        if ok:
-            return str(text)
 
 class Heartbeater(threading.Thread):
     def __init__(self, sock):
@@ -106,7 +108,6 @@ class Receiver(threading.Thread):
         while not self.event.is_set():
             try:
                 data, addr = self.sock.recvfrom(1024)
-                print (data.decode('utf-8'))
                 host = addr[0]
                 port = addr[1]
                 receivedData = data.decode('utf-8').split(';')
@@ -115,19 +116,21 @@ class Receiver(threading.Thread):
                 if indicator is 'N':
                     print ("Nickname already present.")
                     # Try to close window OR show message, text in window
-                    #self.view.sigExit.emit()
+                    self.view.sigExit.emit()
                     sys.exit(1)
                 elif indicator is 'R':
                     self.names = pickle.loads(receivedData[1].encode('ISO-8859-1'))
                     self.view.comboBox.clear()
-                    for n in self.names:
-                        #UPDATE  ComboBox
-                        print ("CB Update")
                     print (self.names)
+                    self.view.comboBox.clear()
+                    for n in self.names:
+                        self.view.comboBox.addItem(n)
+                        self.view.comboBox.setCurrentIndex(0)
+
                     print ("Got new list.")
 
             except socket.timeout:
-                print ('caught a timeout')
+                continue
 
     def stop(self):
         self.event.set()
@@ -146,7 +149,7 @@ class Controller:
         # Connect all signals from view with according handlers
         self.view.sigConnect.connect(self.connect)
         self.view.sigDisconnect.connect(self.disconnect)
-        self.view.sigRefresh.connect(self.refresh)
+        # self.view.sigRefresh.connect(self.refresh)
         self.view.sigExit.connect(self.exit)
         self.nickname = self.view.showNameDialog()
         print("Deine Nickname: ", self.nickname)
@@ -156,7 +159,8 @@ class Controller:
         self.connectToServer()
 
     def connect(self):
-        print("pushed connect-button")
+        self.sock.sendto(('C'+';'+self.nickname+';'+str(self.view.comboBox.currentText())).encode('utf-8'), self.SERV)
+
 
     def connectToServer(self):
         try:
@@ -171,8 +175,8 @@ class Controller:
     def disconnect(self):
         print("pushed disconnect-button")
 
-    def refresh(self):
-        print("pushed refresh-button")
+    # def refresh(self):
+    #     print("pushed refresh-button")
 
     def exit(self):
         self.sock.sendto(('E'+';'+self.nickname).encode('utf-8'), self.SERV)

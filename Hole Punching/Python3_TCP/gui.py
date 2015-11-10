@@ -76,6 +76,7 @@ class Client(QtGui.QWidget):
         #port um 1 erhoehen/verringern => NAT Heuristik
         t3=thread.Thread(target=self.connect_to_client(ip, port))
         t4=thread.Thread(target=self.connect_to_client(ip, port))
+
         t1.start()
         t2.start()
         t3.start()

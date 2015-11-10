@@ -27,7 +27,7 @@
       <file leaf-file-name="tcp_hole_puncher.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_TCP/tcp_hole_puncher.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1560">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1050" max-vertical-offset="1560">
               <caret line="70" column="33" selection-start-line="70" selection-start-column="33" selection-end-line="70" selection-end-column="33" />
               <folding>
                 <element signature="e#222#232#0" expanded="true" />
@@ -48,7 +48,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="widget_ui.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="widget_ui.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_TCP/widget_ui.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="450" max-vertical-offset="1170">
@@ -56,6 +56,16 @@
               <folding>
                 <element signature="e#228#259#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="gui.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_TCP/gui.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.27884614" vertical-offset="951" max-vertical-offset="2670">
+              <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -73,10 +83,11 @@
       <file leaf-file-name="client.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_UDP_Advanced/client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1800" max-vertical-offset="3135">
-              <caret line="121" column="38" selection-start-line="121" selection-start-column="38" selection-end-line="121" selection-end-column="38" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1845" max-vertical-offset="3195">
+              <caret line="124" column="38" selection-start-line="124" selection-start-column="38" selection-end-line="124" selection-end-column="38" />
               <folding>
-                <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+                <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+                <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -112,9 +123,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
+    <option name="x" value="-3" />
     <option name="y" value="31" />
-    <option name="width" value="1280" />
-    <option name="height" value="769" />
+    <option name="width" value="1286" />
+    <option name="height" value="772" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -139,6 +151,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -171,63 +184,8 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FireVPN_Code" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FireVPN_Code" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Hole Punching" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Python3_UDP_Advanced" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FireVPN_Code" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FireVPN_Code" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Hole Punching" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Python3_UDP" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FireVPN_Code" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FireVPN_Code" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Hole Punching" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Python3_TCP" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -480,7 +438,7 @@
     <configuration />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="31" width="1280" height="769" extended-state="6" />
+    <frame x="-3" y="31" width="1286" height="772" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -526,6 +484,53 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_TCP/tcp_hole_puncher_srv.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="390" max-vertical-offset="1035">
+          <caret line="48" column="58" selection-start-line="48" selection-start-column="16" selection-end-line="48" selection-end-column="58" />
+          <folding>
+            <element signature="e#40#53#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_TCP/widget_ui.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1170">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#228#259#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_UDP/client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="495" max-vertical-offset="1755">
+          <caret line="52" column="29" selection-start-line="52" selection-start-column="29" selection-end-line="52" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_UDP_Advanced/client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1845" max-vertical-offset="3195">
+          <caret line="124" column="38" selection-start-line="124" selection-start-column="38" selection-end-line="124" selection-end-column="38" />
+          <folding>
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_UDP/server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="435" max-vertical-offset="585">
+          <caret line="29" column="8" selection-start-line="29" selection-start-column="8" selection-end-line="29" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_TCP/tcp_hole_puncher_srv.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1035">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
@@ -557,7 +562,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="1800" max-vertical-offset="3135">
           <caret line="121" column="38" selection-start-line="121" selection-start-column="38" selection-end-line="121" selection-end-column="38" />
           <folding>
-            <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -613,7 +619,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="1800" max-vertical-offset="3135">
           <caret line="121" column="38" selection-start-line="121" selection-start-column="38" selection-end-line="121" selection-end-column="38" />
           <folding>
-            <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -669,7 +676,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="1800" max-vertical-offset="3135">
           <caret line="121" column="38" selection-start-line="121" selection-start-column="38" selection-end-line="121" selection-end-column="38" />
           <folding>
-            <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -725,7 +733,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="2280" max-vertical-offset="3945">
           <caret line="152" column="38" selection-start-line="152" selection-start-column="30" selection-end-line="152" selection-end-column="38" />
           <folding>
-            <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -781,7 +790,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="3945">
           <caret line="16" column="4" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="4" />
           <folding>
-            <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -819,7 +829,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2565">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -898,10 +909,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_UDP_Advanced/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1815" max-vertical-offset="3150">
-          <caret line="121" column="38" selection-start-line="121" selection-start-column="38" selection-end-line="121" selection-end-column="38" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1845" max-vertical-offset="3195">
+          <caret line="124" column="38" selection-start-line="124" selection-start-column="38" selection-end-line="124" selection-end-column="38" />
           <folding>
-            <marker date="1444653691998" expanded="true" signature="6818:6904" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="6513:6548" placeholder="..." />
+            <marker date="1446818811053" expanded="true" signature="7067:7153" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -941,6 +953,14 @@
           <folding>
             <element signature="e#222#232#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Hole Punching/Python3_TCP/gui.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.27884614" vertical-offset="951" max-vertical-offset="2670">
+          <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
