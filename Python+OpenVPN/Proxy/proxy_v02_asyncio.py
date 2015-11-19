@@ -36,7 +36,7 @@ int.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 int.bind(INT)
 
 #Vom Programm benötigte globale Variable
-LOCALVPNPORT=0
+localvpnport=0
 
 #Innen empfangen und nach aussen senden
 class INTERN:
@@ -46,11 +46,11 @@ class INTERN:
   def datagram_received(self, data, addr):
       global ext
       global SERVER
-      global LOCALVPNPORT
+      global localvpnport
 
       print("int to ext")
-      if(SERVER is False and LOCALVPNPORT is not 0):
-          LOCALVPNPORT=addr[1]
+      if(SERVER is False and localvpnport is not 0):
+          localvpnport=addr[1]
        #Am Outside-Sockel senden
       ext.sendto(data, PEER)
 
@@ -69,11 +69,11 @@ class EXTERN:
   def datagram_received(self, data, addr):
       global int
       global SERVER
-      global LOCALVPNPORT
+      global localvpnport
       print("ext to int")
       #Am Inside-Sockel senden
       if(SERVER is False):
-          int.sendto(data, ("127.0.0.1", LOCALVPNPORT))
+          int.sendto(data, ("127.0.0.1", localvpnport))
       else:
           int.sendto(data, LOCALVPN)
 
