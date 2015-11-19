@@ -39,7 +39,7 @@ int.bind(INT)
 localvpnport=0
 
 #Innen empfangen und nach aussen senden
-class INTERN:
+class Intern:
   def connection_made(self, transport):
       self.transport = transport
 
@@ -62,7 +62,7 @@ class INTERN:
 
 
 #Aussen empfangen und innen senden
-class EXTERN:
+class Extern:
   def connection_made(self, transport):
       self.transport = transport
 
@@ -86,13 +86,13 @@ class EXTERN:
 
 def start_intern(loop, addr):
   t = asyncio.Task(loop.create_datagram_endpoint(
-      INTERN, local_addr=addr))
+      Intern, local_addr=addr))
   transport, server = loop.run_until_complete(t)
 
 
 def start_extern(loop, addr):
   t = asyncio.Task(loop.create_datagram_endpoint(
-      EXTERN, remote_addr=addr))
+      Extern, remote_addr=addr))
   loop.run_until_complete(t)
 
 if __name__ == '__main__':
