@@ -11,3 +11,6 @@ sock.bind((IP, PORT))
 print("Socket auf", IP,":",PORT, "gebunden")
 sock.sendto("Hello from Client".encode("UTF-8"), PROXY)
 print("An", PROXY, "gesendet")
+while True:
+    data, addr = sock.recvfrom(2048)
+    print(data, "von", addr[0],":",addr[1], "empfangen")
