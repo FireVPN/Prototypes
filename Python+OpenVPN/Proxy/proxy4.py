@@ -23,10 +23,8 @@ class Proxy:
 
 
 def main():
-    global externrecv
-    global internrecv
-    intern=Proxy("127.0.0.1", 6220, externrecv)
-    extern=Proxy("10.0.0.1", 6221, internrecv)
+    intern=Proxy("127.0.0.1", 6220)
+    extern=Proxy("10.0.0.1", 6221)
     recvintern=threading.Thread(target=intern.recv).start()
     recvextern=threading.Thread(target=extern.recv).start()
 
