@@ -185,8 +185,8 @@ class Client(QtGui.QWidget, widget.Ui_Widget):
         self.name = self.showNameDialog()
 
         # Server
-        # global SERV_IP
-        # SERV_IP = self.showServerDialog()
+        global SERV_IP
+        SERV_IP = self.showServerDialog()
 
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
