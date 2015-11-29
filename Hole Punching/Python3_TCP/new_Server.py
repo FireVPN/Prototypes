@@ -33,7 +33,7 @@ class Server():
         print("started new Thread")
         while True:
             if clientsocket[1] not in self.addr:
-                self.addr=clientsocket[1]
+                self.addr.append(clientsocket[1])
                 print ("Added:", clientsocket[1])
             data=clientsocket[0].recv(1024)
 
