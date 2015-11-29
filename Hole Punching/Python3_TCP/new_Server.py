@@ -3,6 +3,8 @@ __author__ = 'Alexander Mark, FireVPN'
 import sys
 import socket
 import time
+import threading
+import pickle
 
 """"
 Parameter nach dem File (zB.: python3 server.py 10.0.0.1 8888)
@@ -18,23 +20,31 @@ class Server():
         print ("set up port on ", sys.argv[1], sys.argv[2])
         self.sock.listen(5)
         print ("Socket set to listen")
+        self.addr=list()
 
     def accept_connection(self):
-        clientsocket =self.sock.accept()
-        print ("Got new Connection")
-        return True, clientsocket
+        while True:
+            clientsocket =self.sock.accept()
+            print ("Got new Connection")
+            threading.Thread(target=self.receive, args=[clientsocket]).start()
+
+
+    def receive(self, clientsocket):
+        print("started new Thread")
+        while True:
+            if clientsocket[1] not in self.addr:
+                self.addr=clientsocket[1]
+                print ("Added:", clientsocket[1])
+            data=clientsocket[0].recv(1024)
+
+            if (data.decode('utf-8')=="R"):
+                clientsocket[0].send(pickle.dumps(self.addr))
+                print("send back list to", clientsocket[1])
 
 
 def main():
     srv=Server()
-    while (True):
-        connection, clientsocket=srv.accept_connection()
-        if (connection):
-            #neuer Thread
-            print ("lala")
-        else:
-            time.sleep(10)
-
+    srv.accept_connection()
 
 if __name__ == '__main__':
     main()
