@@ -14,10 +14,12 @@ LOCALVPNPORT=0
 socket_int_rec = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 socket_int_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 socket_int_rec.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+socket_int_rec.setblocking(False)
 socket_int_send.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+socket_int_send.setblocking(False)
 #socket_int.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 socket_int_rec.bind(INT)
-socket_int_send.bind((INT[0], (INT[1]-1)))
+socket_int_send.bind(INT)
 #except:
     #print ("Could not set up INT socket.")
     #sys.exit(1)
@@ -26,7 +28,9 @@ socket_int_send.bind((INT[0], (INT[1]-1)))
 socket_ext_rec = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 socket_ext_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 socket_ext_rec.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+socket_ext_rec.setblocking(False)
 socket_ext_send.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+socket_ext_send.setblocking(False)
 #socket_ext.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 socket_ext_rec.bind(EXT)
 socket_ext_send.bind(EXT)
@@ -48,11 +52,14 @@ def int_to_ext():
     global socket_int_rec
     global socket_ext_send
     while True:
-        data, addr = socket_int_rec.recvfrom(4096)
-        if(not SERVER):
-            LOCALVPNPORT=addr[1]
-        socket_ext_send.sendto(data, PEER)
-        print("int to ext")
+        try:
+            data, addr = socket_int_rec.recvfrom(4096)
+            if(not SERVER):
+                LOCALVPNPORT=addr[1]
+            socket_ext_send.sendto(data, PEER)
+            print("int to ext")
+        except:
+            pass
 
 def ext_to_int():
     global LOCALVPNPORT
@@ -61,12 +68,15 @@ def ext_to_int():
     global socket_int_send
     global socket_ext_rec
     while True:
-        data, addr = socket_ext_rec.recvfrom(4096)
-        if(not SERVER):
-            socket_int_send.sendto(data, ("localhost", LOCALVPNPORT))
-        if(SERVER):
-            socket_int_send.sendto(data, LOCALVPN)
-        print("ext to int")
+        try:
+            data, addr = socket_ext_rec.recvfrom(4096)
+            if(not SERVER):
+                socket_int_send.sendto(data, ("localhost", LOCALVPNPORT))
+            if(SERVER):
+                socket_int_send.sendto(data, LOCALVPN)
+            print("ext to int")
+        except:
+            pass
 
 
 
