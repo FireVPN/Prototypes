@@ -77,7 +77,7 @@ echo y
 echo y
 )| ..\bin\openssl.exe ca -days 3650 -out %KEY_DIR%\client.crt -in %KEY_DIR%\client.csr -config %KEY_CONFIG%
 echo -----Diffie Hellman Parameter generieren-----
-build-dh
+..\bin\openssl dhparam -out %KEY_DIR%/dh%KEY_SIZE%.pem %KEY_SIZE%
 copy keys\ca.crt ..\config
 copy keys\dh1024.pem ..\config
 copy keys\server.crt ..\config
