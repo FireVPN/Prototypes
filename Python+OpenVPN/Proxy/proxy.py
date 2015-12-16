@@ -49,6 +49,9 @@ def int_to_ext():
     global LOCALVPN
     global socket_int_rec
     global socket_ext_send
+    #Performanceupdate
+    #Has to be tested
+    socket_int_rec.settimeout(1)
     while True:
         try:
             data, addr = socket_int_rec.recvfrom(4096)
@@ -65,6 +68,9 @@ def ext_to_int():
     global LOCALVPN
     global socket_int_send
     global socket_ext_rec
+    #Performanceupdate
+    #Has to be tested
+    socket_ext_rec.settimeout(1)
     while True:
         try:
             data, addr = socket_ext_rec.recvfrom(4096)
