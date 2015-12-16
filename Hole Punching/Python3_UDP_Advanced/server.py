@@ -63,29 +63,17 @@ class Receiver(threading.Thread):
                         if discard in loginsToServer:
                             loginsToServer.discard(discard)
                             names.discard(receivedData[1])
-                            for h in heartbeats:
-                                if h[0] == discard[0]:
-                                    hDiscard = h
-                            heartbeats.discard(hDiscard)
                             print (discard[0], "closed the connection.")
                         self.broadcast(names)
                         break
 
             elif indicator is 'C':
                 print (receivedData[1], " wants to connect to ", receivedData[2])
-                for c in loginsToServer:
-                    if c[0] == receivedData[2]:
-                        self.sock.sendto(('C'+';'+(pickle.dumps(c).decode('ISO-8859-1'))).encode(),(host, port))
-                        self.sock.sendto(('Q'+';'+(pickle.dumps((receivedData[1], host, port)).decode('ISO-8859-1'))).encode(),(c[1], c[2]))
-
 
     def broadcast(self, obj):
-        cache = obj.copy()
         try:
             for c in loginsToServer:
-                cache.discard(c[0])
-                self.sock.sendto(('R'+';'+(pickle.dumps(cache).decode('ISO-8859-1'))).encode(),(c[1],c[2]))
-                cache = obj.copy()
+                self.sock.sendto(('R'+';'+(pickle.dumps(obj).decode('ISO-8859-1'))).encode(),(c[1],c[2]))
         except:
             print ("Could not send broadcast.")
 
@@ -109,9 +97,12 @@ class HeartbeatController(threading.Thread):
                             loginsToServer.discard(c)
                             break
                     self.receiver.broadcast(names)
-                    print ("someone left.")
                     break
+
             self.event.wait(15)
+
+
+
 
 def main():
     rec = Receiver()
