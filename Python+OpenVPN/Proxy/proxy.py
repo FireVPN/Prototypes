@@ -1,17 +1,16 @@
 import socket, sys, threading, ipaddress
 
-#Ohne Argumente
-
-SERVER=True
-PEER=("10.0.0.2", 6222)
-
-EXT=("10.0.0.1", 6222)
-
-
 #Programmkonstante
 localvpnport=0
 LOCALVPN=("localhost", 6220)
 INT=("localhost", 6221)
+
+
+#Ohne Argumente
+
+SERVER=True
+PEER=("10.0.0.2", 6222)
+EXT=("10.0.0.1", 6222)
 
 
 #Mit drei Argumenten(IP,IP,SERVER/CLIENT)
