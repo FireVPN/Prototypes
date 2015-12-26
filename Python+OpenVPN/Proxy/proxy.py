@@ -1,14 +1,88 @@
-import socket, sys, threading
+import socket, sys, threading, ipaddress
+
+#Ohne Argumente
 
 SERVER=True
 PEER=("10.0.0.2", 6222)
-LOCALVPN=("localhost", 6220)
 
 EXT=("10.0.0.1", 6222)
+
+
+#Programmkonstante
+localvpnport=0
+LOCALVPN=("localhost", 6220)
 INT=("localhost", 6221)
 
-#Immer 0
-localvpnport=0
+
+#Mit drei Argumenten(IP,IP,SERVER/CLIENT)
+"""
+if len(sys.argv) != 4:
+    print("Falsche Argumente! Beispiel: 'proxy.py lokaleIP(LAN) peerIP [server|client]'")
+    sys.exit(1)
+else:
+    try:
+        ipaddress.ip_address(sys.argv[1])
+        EXT=(sys.argv[1],6222)
+    except:
+        print("Falsche lokale IP!")
+        sys.exit(1)
+    try:
+        ipaddress.ip_address(sys.argv[2])
+        PEER=(sys.argv[2],6222)
+    except:
+        print("Falsche Peer-IP!")
+        sys.exit(1)
+    if(sys.argv[3].lower() == "server"):
+        SERVER=True
+    elif(sys.argv[3].lower() == "client"):
+        SERVER=False
+    else:
+        print("Falsches Server/Client Argument!")
+        sys.exit(1)
+"""
+
+
+#Mit fünf Argumenten(IP,PORT,IP,PORT,SERVER/CLIENT)
+"""
+if len(sys.argv) != 6:
+    print("Falsche Argumente! Beispiel: 'proxy.py lokaleIP(LAN) lokalerPort peerIP peerPort [server|client]'")
+    sys.exit(1)
+else:
+    try:
+        ipaddress.ip_address(sys.argv[1])
+    except:
+        print("Falsche lokale IP!")
+        sys.exit(1)
+    if(int(sys.argv[2]) >= 1 and int(sys.argv[2]) <= 65535):
+        EXT=(sys.argv[1],int(sys.argv[2]))
+    else:
+        print("Falscher lokaler PORT!")
+        sys.exit(1)
+    try:
+        ipaddress.ip_address(sys.argv[3])
+    except:
+        print("Falsche Peer-IP!")
+        sys.exit(1)
+    if(int(sys.argv[4]) >= 1 and int(sys.argv[4]) <= 65535):
+        PEER=(sys.argv[3],int(sys.argv[4]))
+    else:
+        print("Falscher Peer-PORT!")
+        sys.exit(1)
+    if(sys.argv[5].lower() == "server"):
+        SERVER=True
+    elif(sys.argv[5].lower() == "client"):
+        SERVER=False
+    else:
+        print("Falsches Server/Client Argument!")
+        sys.exit(1)
+"""
+
+
+#Debug für Argumente
+"""
+print(EXT,PEER,SERVER)
+"""
+
 
 try:
     socket_int_rec = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
