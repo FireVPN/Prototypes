@@ -4,17 +4,16 @@ import sys
 import socket
 import widget
 import pickle
+import logging
+import datetime
 
 
 SERV_IP = "127.0.0.1"
-SERV_PORT = 4567
+SERV_PORT = 45678
 
 
-class ControllerThread(QThread):
+class CThread(QThread):
     def __init__(self, socket, name):
-        """
-        Make a new thread instance Controller.
-        """
         QThread.__init__(self)
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
@@ -27,8 +26,9 @@ class ControllerThread(QThread):
     def connectToServer(self):
         try:
             self.socket.sendto(('L'+';'+self.name).encode('utf-8'), self.SERV)
+            debug(self, "Login sent to Server")
         except:
-            print ("Could not send login.")
+            exception(self, "Could not send login")
             sys.exit(1)
 
     def connectToClient(self, partner):
@@ -40,32 +40,41 @@ class ControllerThread(QThread):
         except:
             print ("Could not send connect.")
 
+    def agree(self, partner):
+        print (partner)
+        try:
+            self.socket.sendto(('Y'+';'+self.name + ';' +
+                               partner[0])
+                               .encode('utf-8'), self.SERV)
+        except:
+            print ("Could not send connect.")
+
     def testFW(self, heuristic, ip, port):
         """
         0: received
         1: received+1
-        2: received+2
+        2: received-1
         3: server
         """
         if heuristic not in (0, 1, 2, 3):
             return
         if heuristic is 0:
-            # try ip+port as received
             partner = (ip, port)
         elif heuristic is 1:
-            # try ip+port+1 as received
             partner = (ip, port+1)
         elif heuristic is 2:
-            # try ip+port-1 as received
             partner = (ip, port-1)
         elif heuristic is 3:
-            # try ip+port as received
+            print ("server")
             partner = self.SERV
-        print ("testFW:", partner)
-        for i in range(0, 5, 1):
-            self.socket.sendto(('X'+';'+self.name + ';')
-                               .encode('utf-8'), partner)
-        self.sleep(2)
+        # for i in range(0, 5, 1):
+        #     print ("sending X to ", partner)
+        #     self.socket.sendto(('X'+';'+self.name + ';')
+        #                        .encode('utf-8'), partner)
+        #     self.wait(5)
+        print ("sending X to ", partner)
+        self.socket.sendto(('X'+';'+self.name + ';')
+                           .encode('utf-8'), partner)
 
 
 class ClientSender(QThread):
@@ -75,7 +84,6 @@ class ClientSender(QThread):
         self.partner = partner
         self.name = name
         self.text = text
-        print (self.text)
 
     def stop(self):
         self.terminate()
@@ -87,14 +95,12 @@ class ClientSender(QThread):
         while True:
             self.socket.sendto(('M'+';'+self.name + ';' + self.text)
                                .encode('utf-8'), self.partner)
+            print ("sending ", self.text, "to", self.partner)
             self.sleep(2)
 
 
-class ReceiverThread(QThread):
+class RThread(QThread):
     def __init__(self, socket):
-        """
-        Make a new thread instance Receiver.
-        """
         QThread.__init__(self)
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
@@ -104,8 +110,23 @@ class ReceiverThread(QThread):
         self.wait()
 
     def run(self):
+        answer = 0
+        fw_test = 0
+        timestamp = datetime.datetime.now()
         while True:
             try:
+                if (answer == 0 and
+                   (datetime.datetime.now()-timestamp).total_seconds() >= 3):
+                    exception(self, "Server unreachable")
+                    # Ugly exit
+                    sys.exit(1)
+                if (fw_test == 1 and
+                   (datetime.datetime.now()-timestamp).total_seconds() >= 5):
+                    # timeout for server connection
+                   print ("gui")
+                   self.emit(SIGNAL('testingFW(PyQt_PyObject)'), True)
+                   fw_test = 0
+
                 data, addr = self.socket.recvfrom(1024)
                 host = addr[0]
                 port = addr[1]
@@ -113,9 +134,10 @@ class ReceiverThread(QThread):
                 indicator = receivedData[0]
 
                 if indicator is 'N':
-                    print ("Nickname already present.")
+                    answer = 1
                     self.emit(SIGNAL('showNamePresentDialog()'))
                 elif indicator is 'R':
+                    answer = 1
                     self.names = pickle.loads(receivedData[1]
                                               .encode('ISO-8859-1'))
                     self.emit(SIGNAL('add_names(PyQt_PyObject)'), self.names)
@@ -123,34 +145,35 @@ class ReceiverThread(QThread):
                     self.test = pickle.loads(receivedData[1]
                                              .encode('ISO-8859-1'))
                     print ("Partner received:", self.test[1], self.test[2])
-                    self.sleep(5)
-                    self.emit(SIGNAL('startTestingFW(PyQt_PyObject)'),
-                              (self.test[1], self.test[2]))
+                    self.emit(SIGNAL('cPartner(PyQt_PyObject)'), self.test)
                 elif indicator is 'Q':
-                    print ("got connection request from Server")
                     self.test = pickle.loads(receivedData[1]
                                              .encode('ISO-8859-1'))
+                    debug(self, "Connection request from "+str(self.test))
                     self.emit(SIGNAL('showConnectionDialog(PyQt_PyObject)'),
-                              (self.test[1], self.test[2]))
+                              (self.test[0], self.test[1], self.test[2]))
+                elif indicator is 'S':
+                    print ("S received")
+                    timestamp = datetime.datetime.now()
+                    fw_test = 1
+                    self.emit(SIGNAL('testingFW(PyQt_PyObject)'), False)
                 elif indicator is 'M':
                     # Absicherung Überprüfen ob richtige IP nötig
-
                     self.emit(SIGNAL('cText(QString)'), receivedData[2])
                 elif indicator is 'X':
+                    print ("X received from ", host, port)
                     # Absicherung Überprüfen ob richtige IP nötig
                     self.emit(SIGNAL('received(PyQt_PyObject)'),
                               (host, port))
                 else:
                     print (indicator, receivedData[1])
+
             except socket.timeout:
                 continue
 
 
 class HeartbeatThread(QThread):
     def __init__(self, socket):
-        """
-        Make a new thread instance Hearbeater.
-        """
         QThread.__init__(self)
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
@@ -164,45 +187,50 @@ class HeartbeatThread(QThread):
             self.sleep(10)
 
 
-class Client(QtGui.QWidget, widget.Ui_Widget):
+class ClientGui(QtGui.QWidget, widget.Ui_Widget):
     def __init__(self):
-        # Explaining super is out of the scope of this article
-        # So please google it if you're not familar with it
-        # Simple reason why we use it here is that it allows us to
-        # access variables, methods etc in the design.py file
         super(self.__class__, self).__init__()
-        self.setupUi(self)  # This is defined in design.py file automatically
-        # It sets up layout and widgets that are defined
-        # Connect the Signal
-        self.pushButton_3.clicked.connect(self.connectToClient)
-        # for the Connect Button
+        self.setupUi(self)
+
+        # Logging
+        filename = "logs/udpHP_"+datetime.datetime.now().strftime("%y-%m-%d-%H-%M")+".log"
+        logging.basicConfig(filename=filename, level=logging.DEBUG)
 
         # disable buttons
         self.pushButton_3.setEnabled(False)
         self.pushButton_4.setEnabled(False)
 
+        # connect buttons
+        self.pushButton_3.clicked.connect(self.connectToClient)
+        self.pushButton_4.clicked.connect(self.connectToClient)
+        debug(self, "Initial setup completed")
+
         # Name Dialog
         self.name = self.showNameDialog()
-
-        # Server
-        global SERV_IP
-        SERV_IP = self.showServerDialog()
+        debug(self, "Name: "+self.name)
+        # Server Dialog
+        # global SERV_IP
+        # SERV_IP = self.showServerDialog()
+        debug(self, "Server: "+SERV_IP)
 
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except:
-            print ("Could not set up socket.")
+            exception(self, "Socket setup failed")
             sys.exit(1)
+        debug(self, "Socket setup completed")
 
         # Controller
-        self.controller = ControllerThread(self.sock, self.name)
+        self.controller = CThread(self.sock, self.name)
+        debug(self, "ControllerThread setup completed")
         self.controller.connectToServer()
         self.connect(self.textBrowser_2,
                      SIGNAL("textChanged()"),
                      self.textChanged)
 
         # Receiver
-        self.receiver = ReceiverThread(self.sock)
+        self.receiver = RThread(self.sock)
+        debug(self, "ReceiverThread setup completed")
         self.connect(self.receiver,
                      SIGNAL("add_names(PyQt_PyObject)"),
                      self.add_names)
@@ -215,29 +243,50 @@ class Client(QtGui.QWidget, widget.Ui_Widget):
                      SIGNAL("received(PyQt_PyObject)"),
                      self.received)
         self.connect(self.receiver,
-                     SIGNAL("startTestingFW(PyQt_PyObject)"),
-                     self.startTestingFW)
+                     SIGNAL("testingFW(PyQt_PyObject)"),
+                     self.testFW)
         self.connect(self.receiver,
                      SIGNAL("cText(QString)"),
                      self.changeTextBrowser)
+        self.connect(self.receiver,
+                     SIGNAL("cPartner(PyQt_PyObject)"),
+                     self.changePartner)
         self.receiver.start()
+
         # Heartbeater
         self.heartbeater = HeartbeatThread(self.sock)
+        debug(self, "HeartbeatThread setup completed")
         self.heartbeater.start()
+        debug(self, "Heartbeater started")
 
         # ClientSender
         self.cs = None
+
+        #Partner
+        self.partner = None
 
     def newInit(self):
         # Name Dialog
         self.name = self.showNameDialog()
 
+        # Server Dialog
+        # global SERV_IP
+        # SERV_IP = self.showServerDialog()
+
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        except:
+            sys.exit(1)
+
         # Controller
-        self.controller = ControllerThread(self.sock, self.name)
+        self.controller = CThread(self.sock, self.name)
         self.controller.connectToServer()
+        self.connect(self.textBrowser_2,
+                     SIGNAL("textChanged()"),
+                     self.textChanged)
 
         # Receiver
-        self.receiver = ReceiverThread(self.sock)
+        self.receiver = RThread(self.sock)
         self.connect(self.receiver,
                      SIGNAL("add_names(PyQt_PyObject)"),
                      self.add_names)
@@ -247,9 +296,19 @@ class Client(QtGui.QWidget, widget.Ui_Widget):
                      SIGNAL("showConnectionDialog(PyQt_PyObject)"),
                      self.showConnectionDialog)
         self.connect(self.receiver,
-                     SIGNAL("startTestingFW(PyQt_PyObject)"),
-                     self.startTestingFW)
+                     SIGNAL("received(PyQt_PyObject)"),
+                     self.received)
+        self.connect(self.receiver,
+                     SIGNAL("testingFW(PyQt_PyObject)"),
+                     self.testFW)
+        self.connect(self.receiver,
+                     SIGNAL("cText(QString)"),
+                     self.changeTextBrowser)
+        self.connect(self.receiver,
+                     SIGNAL("cPartner(PyQt_PyObject)"),
+                     self.changePartner)
         self.receiver.start()
+
         # Heartbeater
         self.heartbeater = HeartbeatThread(self.sock)
         self.heartbeater.start()
@@ -310,24 +369,37 @@ class Client(QtGui.QWidget, widget.Ui_Widget):
                                            "Ablehnen")
 
         if reply == 0:
-            print ("Connection to client starts")
-            self.startTestingFW(partner)
+            debug(self, "Agreed to client connection")
+            self.partner = partner
+            self.controller.agree(partner)
         else:
-            print ("Verbindung wird abgebrochen")
+            debug(self, "Client connection refused")
 
-    def startTestingFW(self, partner):
-        print ("Verbindung zu", partner, "wird aufgebaut")
-        for i in range(0, 3, 1):
-            if self.cs is not None:
-                print ("using:", self.cs.partner)
-                break
-            self.controller.testFW(i, partner[0], partner[1])
-        self.pushButton_3.setEnabled(False)
-        self.comboBox.setEnabled(False)
+    def testFW(self, tested):
+        if self.partner is None:
+            return
+        if self.cs is not None:
+            self.pushButton_3.setEnabled(False)
+            self.comboBox.setEnabled(False)
+            return
+
+        debug(self, "Connecting to "+str(self.partner))
+        if not tested:
+            # for j in range(0, 2, 1):
+            #     for i in range(0, 5, 1):
+            #         # if self.cs is not None:
+            #         #     print ("using:", self.cs.partner)
+            #         #     break
+            #         self.controller.testFW(j, self.partner[1], self.partner[2])
+            print ("normally test")
+        else:
+            self.controller.testFW(3, self.partner[1], self.partner[2])
+
 
     def received(self, partner):
         if self.cs is None:
-            print ("set up clientsender")
+            self.pushButton_3.setEnabled(False)
+            self.comboBox.setEnabled(False)
             self.cs = ClientSender(self.sock, self.name, partner,
                                    self.textBrowser_2.toPlainText())
             self.connect(self.textBrowser_3, SIGNAL("textChanged(QString)"),
@@ -344,11 +416,22 @@ class Client(QtGui.QWidget, widget.Ui_Widget):
     def changeTextBrowser(self, text):
         self.textBrowser_3.append(text)
 
+    def changePartner(self, partner):
+        self.partner = partner
+
+
+def debug(obj, msg):
+    logging.debug(('{0} \u0009 {1} \u0009 {2}').format(datetime.datetime.now(), type(obj).__name__, msg))
+
+def exception(obj, msg):
+    logging.error(('{0} \u0009 {1} \u0009 {2}').format(datetime.datetime.now(), type(obj).__name__, msg))
+    logging.debug(('{0} \u0009 {1} \u0009 {2}').format(datetime.datetime.now(), type(obj).__name__, "Exiting..."))
 
 def main():
     app = QtGui.QApplication(sys.argv)  # A new instance of QApplication
     app.setWindowIcon(QtGui.QIcon('icon.png'))  # Set Window Icon
-    form = Client()  # We set the form to be our ExampleApp (design)
+    app.setStyle('cleanlook')
+    form = ClientGui()  # We set the form to be our ExampleApp (design)
     form.show()  # Show the form
     app.exec_()  # and execute the app
 
