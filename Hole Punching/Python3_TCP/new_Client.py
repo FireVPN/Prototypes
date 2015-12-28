@@ -5,6 +5,7 @@ import pickle
 import threading
 import logging
 from datetime import datetime
+import time
 
 #Logik des Hole Puncher
 class Client():
@@ -80,14 +81,82 @@ class Client():
         logging.debug("selected adress: "+selected_adr)
         self.selected_ip=splited_adress[0]
         self.selected_port=int(splited_adress[1])
-        self.prepare_punch()
+        self.handle_punch()
 
 
     #hole punching prozess starten
-    def prepare_punch(self):
+    def handle_punch(self):
+        self.connection_accepted=False
         logging.debug("prepareing punch, starting thread with destination address selected from address as destination and a listening socket")
-        threading.Thread(target=self.connect_to_Client).start()
-        threading.Thread(target=self.listen_for_Client_connection).start()
+        self.syn_flooding=threading.Thread(target=self.connect_to_Client)
+        self.listen_syn=threading.Thread(target=self.listen_for_Client_connection)
+        self.syn_flooding.start()
+        logging.debug("syn flooding started")
+        self.listen_syn.start()
+        logging.debug("listening for incoming syn flooding started")
+
+        logging.debug("waiting 3 seconds")
+        self.connection_accepted=False
+        time.sleep(3)
+
+        logging.debug("Checking result of punch")
+        if (self.connection_accepted):
+            logging.debug("Worked fine")
+        else:
+            logging.debug("bad result, stopping threads and decreasing ports")
+            self.syn_flooding._stop()
+            self.listen_syn._stop()
+
+            #port-1 setzen, siehe nat heuristik
+            self.selected_port=self.selected_port-1
+            logging.debug("starting Threads again, with port-1")
+            self.syn_flooding=threading.Thread(target=self.connect_to_Client)
+            self.listen_syn=threading.Thread(target=self.listen_for_Client_connection)
+            self.syn_flooding.start()
+            logging.debug("syn flooding started")
+            self.listen_syn.start()
+            logging.debug("listening for incoming syn flooding started")
+
+            logging.debug("listening for incoming syn flooding started")
+            logging.debug("waiting 3 seconds")
+            self.connection_accepted=False
+            time.sleep(3)
+
+            if (self.connection_accepted):
+                logging.debug("Worked fine")
+            else:
+                logging.debug("bad result, stopping threads and increasing ports")
+                self.syn_flooding._stop()
+                self.listen_syn._stop()
+
+                #port (orginal) +1 setzen, siehe NAT heuristik
+                self.selected_port=self.selected_port+2
+                logging.debug("starting Threads again, with port+1")
+                self.syn_flooding=threading.Thread(target=self.connect_to_Client)
+                self.listen_syn=threading.Thread(target=self.listen_for_Client_connection)
+                self.syn_flooding.start()
+                logging.debug("syn flooding started")
+                self.listen_syn.start()
+                logging.debug("listening for incoming syn flooding started")
+
+                logging.debug("listening for incoming syn flooding started")
+                logging.debug("waiting 3 seconds")
+                self.connection_accepted=False
+                time.sleep(3)
+
+
+                if (self.connection_accepted):
+                    logging.debug("Worked fine")
+                else:
+                    logging.debug("no success, stopping threads trying to relay")
+                    print("no sucess, trying to relay")
+                    self.syn_flooding._stop()
+                    self.listen_syn._stop()
+                    #"orginale" port
+                    self.selected_port=self.selected_port-1
+                    #start relaying
+
+
 
     def connect_to_Client(self):
         print ("intialising connection Socket for Client")
@@ -102,9 +171,12 @@ class Client():
         logging.debug("set up tcp socket for syn flooding, address and port reuse used")
         while(connect_socket.connect_ex((self.selected_ip, self.selected_port))): #SYN packets flooding
             pass
+        self.connection_accepted=True
+        self.listen_syn._stop()
         print("connected!")
-        logging.debug("connected to other host! logged from conncet/syn flooding socket")
+        logging.debug("connected to other host! logged from conncet/syn flooding socket, other Thread stopped")
         #was nun?
+        #ovpn starten?
 
     def listen_for_Client_connection(self):
         print ("intialising listening Socket for Client")
@@ -119,14 +191,18 @@ class Client():
         listen_socket.listen(5) #listen starten, auf das SYN flooding warten
         logging.debug("set up tcp socket for accepting syn packets, address and port reuse used")
         listen_socket.accept() # Verbindung annehmen
-        logging.debug("connected to other host! logged from listening socket syn accepted")
+        self.connection_accepted=True
+        self. syn_flooding._stop()
+        logging.debug("connected to other host! logged from listening socket syn accepted, other thread stopped")
         print("connected!")
         #was nun?
+        #ovpn starten?
 
 def main():
     client=Client()
     client.connect_to_server()
     client.send_command_to_srv()
+    #socket erhalten (der mit dem anderen client verbunden ist und diesen dem Proxy übergeben => neue klasse)
 
 
 if __name__ == '__main__':
