@@ -104,8 +104,8 @@ class Client():
             logging.debug("Worked fine")
         else:
             logging.debug("bad result, stopping threads and decreasing ports")
-            self.syn_flooding._stop()
-            self.listen_syn._stop()
+            self.syn_flooding.kill()
+            self.listen_syn.kill()
 
             #port-1 setzen, siehe nat heuristik
             self.selected_port=self.selected_port-1
@@ -126,8 +126,8 @@ class Client():
                 logging.debug("Worked fine")
             else:
                 logging.debug("bad result, stopping threads and increasing ports")
-                self.syn_flooding._stop()
-                self.listen_syn._stop()
+                self.syn_flooding.kill()
+                self.listen_syn.kill()
 
                 #port (orginal) +1 setzen, siehe NAT heuristik
                 self.selected_port=self.selected_port+2
@@ -150,8 +150,8 @@ class Client():
                 else:
                     logging.debug("no success, stopping threads trying to relay")
                     print("no sucess, trying to relay")
-                    self.syn_flooding._stop()
-                    self.listen_syn._stop()
+                    self.syn_flooding.kill()
+                    self.listen_syn.kill()
                     #"orginale" port
                     self.selected_port=self.selected_port-1
                     #start relaying
@@ -172,7 +172,7 @@ class Client():
         while(connect_socket.connect_ex((self.selected_ip, self.selected_port))): #SYN packets flooding
             pass
         self.connection_accepted=True
-        self.listen_syn._stop()
+        self.listen_syn.kill()
         print("connected!")
         logging.debug("connected to other host! logged from conncet/syn flooding socket, other Thread stopped")
         #was nun?
@@ -192,7 +192,7 @@ class Client():
         logging.debug("set up tcp socket for accepting syn packets, address and port reuse used")
         listen_socket.accept() # Verbindung annehmen
         self.connection_accepted=True
-        self. syn_flooding._stop()
+        self. syn_flooding.kill()
         logging.debug("connected to other host! logged from listening socket syn accepted, other thread stopped")
         print("connected!")
         #was nun?
