@@ -109,8 +109,8 @@ class Receiver(threading.Thread):
                 for c in loginsToServer:
                     if c[0] == receivedData[2]:
                         connections.add((receivedData[1], None, False))
-                        self.sock.sendto(('C'+';'+(pickle.dumps(c).decode('ISO-8859-1'))).encode(),(host, port))
-                        self.sock.sendto(('Q'+';'+(pickle.dumps((receivedData[1], host, port)).decode('ISO-8859-1'))).encode(),(c[1], c[2]))
+                        conn_sock.send(('C'+';'+(pickle.dumps((c[0], c[1], c[2])).decode('ISO-8859-1'))).encode())
+                        c[3].send(('Q'+';'+(pickle.dumps((receivedData[1], host, port)).decode('ISO-8859-1'))).encode())
 
             elif indicator is 'Y':
                 print (receivedData[1], " agrees to ", receivedData[2])
@@ -144,7 +144,7 @@ class Receiver(threading.Thread):
 
 
     def giveStart(self, c):
-        self.sock.sendto(("S"+";").encode(), (c[1], c[2]))
+        c[3].send(("S"+";").encode())
 
     def broadcast(self, obj):
         cache = obj.copy()
