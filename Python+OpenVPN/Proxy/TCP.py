@@ -35,8 +35,8 @@ class Init():
            connext, addr = self.ext_sock.accept()
            print("Verbindung zu PEER hergestellt")
            proxy_intern = Proxy(self.int_sock.dup(), connext.dup())
-       tintern = threading.Thread(target=Proxy.intern())
-       textern = threading.Thread(target=Proxy.extern())
+       tintern = threading.Thread(target=Proxy.intern)
+       textern = threading.Thread(target=Proxy.extern)
        tintern.start()
        textern.start()
 
