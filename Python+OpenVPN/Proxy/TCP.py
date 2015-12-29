@@ -24,13 +24,17 @@ class Init():
             self.int_sock.listen(5)
             connint, addr = self.int_sock.accept()
             localvpnport=addr[1]
+            print("Verbindung zu VPN hergestellt")
             self.ext_sock.connect(PEER)
+            print("Verbindung zu PEER hergestellt")
             proxy_intern = Proxy_intern(connint, self.ext_sock)
             proxy_extern = Proxy_extern(connint, self.ext_sock)
         else:
             self.int_sock.connect(LOCALVPN)
+            print("Verbindung zu VPN hergestellt")
             self.ext_sock.listen(5)
             connext, addr = self.ext_sock.accept()
+            print("Verbindung zu PEER hergestellt")
             proxy_intern = Proxy_intern(self.int_sock, connext)
             proxy_extern = Proxy_extern(self.int_sock, connext)
         tintern = threading.Thread(target=proxy_intern.run())
@@ -44,8 +48,11 @@ class Proxy_intern():
         self.ext_sock = ext_sock
     def run(self):
         while True:
-            data = self.int_sock.recv(1024)
-            self.ext_sock.send(data)
+            try:
+                data = self.int_sock.recv(1024)
+                self.ext_sock.send(data)
+            except:
+                pass
 
 class Proxy_extern():
     def __init__(self, int_sock, ext_sock):
@@ -53,8 +60,11 @@ class Proxy_extern():
         self.ext_sock = ext_sock
     def run(self):
         while True:
-            data = self.ext_sock.recv(1024)
-            self.int_sock.send(data)
+            try:
+                data = self.ext_sock.recv(1024)
+                self.int_sock.send(data)
+            except:
+                pass
 
 def main():
     init = Init()
