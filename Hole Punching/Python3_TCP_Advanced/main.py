@@ -21,7 +21,7 @@ class CThread(QThread):
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
         self.name = name
-        print("Konstruktor von CThread durchlaufen")
+        #print("Konstruktor von CThread durchlaufen")
 
     def __del__(self):
         self.wait()
@@ -37,6 +37,47 @@ class CThread(QThread):
         except:
             exception(self, "Could not send login")
             sys.exit(1)
+
+    def connectToClient(self, partner):
+        try:
+            print ("send connection request to server")
+            self.socket.send(('C'+';'+self.name + ';' +
+                               partner)
+                               .encode('utf-8'))
+        except:
+            print ("Could not send connect.")
+
+    def agree(self, partner):
+        print (partner)
+        try:
+            self.socket.send(('Y'+';'+self.name + ';' +
+                               partner[0])
+                               .encode('utf-8'))
+        except:
+            print ("Could not send connect.")
+
+    def testFW(self, heuristic, ip, port):
+        """
+        0: received
+        1: received+1
+        2: received-1
+        3: serveri
+        """
+        if heuristic not in (0, 1, 2, 3):
+            return
+        if heuristic is 0:
+            partner = (ip, port)
+        elif heuristic is 1:
+            partner = (ip, port+1)
+        elif heuristic is 2:
+            partner = (ip, port-1)
+        elif heuristic is 3:
+            partner = self.SERV
+        print ("sending X to ", partner)
+
+        #TCP sockets erzeugen (listen +  syn flood)
+        #!self.socket.sendto(('X'+';'+self.name + ';')
+        #                   .encode('utf-8'), partner)
 
 
 

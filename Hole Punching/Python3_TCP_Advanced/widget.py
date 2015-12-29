@@ -58,7 +58,7 @@ class Ui_Widget(object):
 
     def retranslateUi(self, Widget):
         Widget.setWindowTitle(_translate("Widget",
-                                         "UDP Hole Puncher NG",
+                                         "TCP Hole Puncher NG",
                                          None))
         self.pushButton_3.setText(_translate("Widget", "Connect", None))
         self.pushButton_4.setText(_translate("Widget", "Disconnect", None))
