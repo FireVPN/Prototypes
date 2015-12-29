@@ -54,7 +54,7 @@ class CThread(QThread):
         0: received
         1: received+1
         2: received-1
-        3: server
+        3: serveri
         """
         if heuristic not in (0, 1, 2, 3):
             return
@@ -65,16 +65,11 @@ class CThread(QThread):
         elif heuristic is 2:
             partner = (ip, port-1)
         elif heuristic is 3:
-            print ("server")
             partner = self.SERV
-        # for i in range(0, 5, 1):
-        #     print ("sending X to ", partner)
-        #     self.socket.sendto(('X'+';'+self.name + ';')
-        #                        .encode('utf-8'), partner)
-        #     self.wait(5)
         print ("sending X to ", partner)
         self.socket.sendto(('X'+';'+self.name + ';')
                            .encode('utf-8'), partner)
+
 
 
 class ClientSender(QThread):
@@ -209,8 +204,8 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         self.name = self.showNameDialog()
         debug(self, "Name: "+self.name)
         # Server Dialog
-        # global SERV_IP
-        # SERV_IP = self.showServerDialog()
+        global SERV_IP
+        SERV_IP = self.showServerDialog()
         debug(self, "Server: "+SERV_IP)
 
         try:
@@ -270,8 +265,8 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         self.name = self.showNameDialog()
 
         # Server Dialog
-        # global SERV_IP
-        # SERV_IP = self.showServerDialog()
+        global SERV_IP
+        SERV_IP = self.showServerDialog()
 
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -385,13 +380,12 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
 
         debug(self, "Connecting to "+str(self.partner))
         if not tested:
-            # for j in range(0, 2, 1):
-            #     for i in range(0, 5, 1):
-            #         # if self.cs is not None:
-            #         #     print ("using:", self.cs.partner)
-            #         #     break
-            #         self.controller.testFW(j, self.partner[1], self.partner[2])
-            print ("normally test")
+            for j in range(0, 2, 1):
+                for i in range(0, 5, 1):
+                    # if self.cs is not None:
+                    #     print ("using:", self.cs.partner)
+                    #     break
+                    self.controller.testFW(j, self.partner[1], self.partner[2])
         else:
             self.controller.testFW(3, self.partner[1], self.partner[2])
 
