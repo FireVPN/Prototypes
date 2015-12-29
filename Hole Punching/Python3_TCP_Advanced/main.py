@@ -10,9 +10,37 @@ import datetime
 
 SERV_IP = "127.0.0.1"
 SERV_PORT = 45678
+LOCAL_IP="0.0.0.0"
+LOCAL_PORT=7777
 
 
-#class CThread(QThread):
+class CThread(QThread):
+
+    def __init__(self, socket, name):
+        QThread.__init__(self)
+        self.SERV = (SERV_IP, SERV_PORT)
+        self.socket = socket
+        self.name = name
+        print("Konstruktor von CThread durchlaufen")
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        print("sdf")
+
+
+    def connectToServer(self):
+        try:
+            self.socket.send(('L'+';'+self.name).encode('utf-8'))
+            debug(self, "Login sent to Server")
+        except:
+            exception(self, "Could not send login")
+            sys.exit(1)
+
+
+
+
 
 
 #class ClientSender(QThread):
@@ -20,11 +48,12 @@ SERV_PORT = 45678
 
 
 class RThread(QThread):
+
     def __init__(self, socket):
         QThread.__init__(self)
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
-        self.socket.settimeout(1)
+
 
     def __del__(self):
         self.wait()
@@ -47,7 +76,8 @@ class RThread(QThread):
                    self.emit(SIGNAL('testingFW(PyQt_PyObject)'), True)
                    fw_test = 0
 
-                data, addr = self.socket.recvfrom(1024)
+                data= self.socket.recv(1024)
+                addr= self.socket.getpeername()
                 host = addr[0]
                 port = addr[1]
                 receivedData = data.decode('utf-8').split(';')
@@ -119,11 +149,16 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         SERV_IP = self.showServerDialog()
         debug(self, "Server: "+SERV_IP)
 
-        try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        except:
-            exception(self, "Socket setup failed")
-            sys.exit(1)
+        #try:
+        self.sock = socket.socket()
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        self.sock.bind((LOCAL_IP,LOCAL_PORT))
+        while(self.sock.connect_ex((SERV_IP,SERV_PORT))): #SYN packets flooding
+            pass
+        #except:
+        #    exception(self, "Socket setup failed")
+        #    sys.exit(1)
         debug(self, "Socket setup completed")
 
         # Controller
@@ -174,7 +209,10 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         SERV_IP = self.showServerDialog()
 
         try:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock = socket.socket()
+            self.to_srv_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+            self.to_srv_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+            self.sock.bind((LOCAL_IP,LOCAL_PORT))
         except:
             sys.exit(1)
 
