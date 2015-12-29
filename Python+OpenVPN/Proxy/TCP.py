@@ -1,5 +1,5 @@
 __author__ = 'Elias Eckenfeller'
-import sys, socket, threading
+import sys, socket, threading, platform
 SERVER=True
 PEER=("10.0.0.2", 6222)
 EXT=("10.0.0.1", 6222)
@@ -12,11 +12,13 @@ class Init():
         print("Starting Proxy")
         self.ext_sock = socket.socket()
         self.ext_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.ext_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        if("Windows" not in platform.platform()):
+            self.ext_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         self.ext_sock.bind(EXT)
         self.int_sock = socket.socket()
         self.int_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.int_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        if("Windows" not in platform.platform()):
+            self.int_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         self.int_sock.bind(INT)
         if(not SERVER):
             self.int_sock.listen(5)
