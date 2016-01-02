@@ -16,3 +16,4 @@ if [ "$pac" = "pacman" ] ; then $pac -R openvpn easy-rsa --noconfirm
 else
 $pac remove OpenVPN easy-rsa -y
 fi
+rm -rf /etc/openvpn
