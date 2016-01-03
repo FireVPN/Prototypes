@@ -66,7 +66,8 @@ class CThread(QThread):
             partner = (ip, port-1)
         elif heuristic is 3:
             partner = self.SERV
-        print ("sending X to ", partner)
+        self.wait(1)
+        debug(self, "Sending punchingpacket to "+ str(partner))
         self.socket.sendto(('X'+';'+self.name + ';')
                            .encode('utf-8'), partner)
 
@@ -90,7 +91,6 @@ class ClientSender(QThread):
         while True:
             self.socket.sendto(('M'+';'+self.name + ';' + self.text)
                                .encode('utf-8'), self.partner)
-            print ("sending ", self.text, "to", self.partner)
             self.sleep(2)
 
 
@@ -118,7 +118,7 @@ class RThread(QThread):
                 if (fw_test == 1 and
                    (datetime.datetime.now()-timestamp).total_seconds() >= 5):
                     # timeout for server connection
-                   print ("gui")
+                   debug (self, "No punchingpacket received")
                    self.emit(SIGNAL('testingFW(PyQt_PyObject)'), True)
                    fw_test = 0
 
@@ -148,7 +148,7 @@ class RThread(QThread):
                     self.emit(SIGNAL('showConnectionDialog(PyQt_PyObject)'),
                               (self.test[0], self.test[1], self.test[2]))
                 elif indicator is 'S':
-                    print ("S received")
+                    debug(self, "Received start to test firewall")
                     timestamp = datetime.datetime.now()
                     fw_test = 1
                     self.emit(SIGNAL('testingFW(PyQt_PyObject)'), False)
@@ -156,7 +156,8 @@ class RThread(QThread):
                     # Absicherung Überprüfen ob richtige IP nötig
                     self.emit(SIGNAL('cText(QString)'), receivedData[2])
                 elif indicator is 'X':
-                    print ("X received from ", host, port)
+                    debug(self, "Received punchingpacket from "+str((host, port)))
+                    fw_test = 0
                     # Absicherung Überprüfen ob richtige IP nötig
                     self.emit(SIGNAL('received(PyQt_PyObject)'),
                               (host, port))
@@ -188,7 +189,7 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         self.setupUi(self)
 
         # Logging
-        filename = "logs/udpHP_"+datetime.datetime.now().strftime("%y-%m-%d-%H-%M")+".log"
+        filename = "logs/udpHP_"+datetime.datetime.now().strftime("%y-%m-%d-%H-%M-%S")+".log"
         logging.basicConfig(filename=filename, level=logging.DEBUG)
 
         # disable buttons
@@ -378,15 +379,16 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
             self.comboBox.setEnabled(False)
             return
 
-        debug(self, "Connecting to "+str(self.partner))
         if not tested:
+            debug(self, "Try to connect to "+str(self.partner) + " directly")
             for j in range(0, 2, 1):
                 for i in range(0, 5, 1):
-                    # if self.cs is not None:
-                    #     print ("using:", self.cs.partner)
-                    #     break
+                    if self.cs is not None:
+                        print ("using:", self.cs.partner)
+                        break
                     self.controller.testFW(j, self.partner[1], self.partner[2])
         else:
+            debug(self, "Try to connect to "+str(self.partner) + " over server")
             self.controller.testFW(3, self.partner[1], self.partner[2])
 
 
