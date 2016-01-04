@@ -1,0 +1,5 @@
+DEBUG:root:2015-12-29 14:02:47.661955 	 ClientGui 	 Initial setup completed
+DEBUG:root:2015-12-29 14:02:51.155049 	 ClientGui 	 Name: 1234
+DEBUG:root:2015-12-29 14:02:59.710187 	 ClientGui 	 Server: 10.0.0.14
+ERROR:root:2015-12-29 14:02:59.710864 	 ClientGui 	 Socket setup failed
+DEBUG:root:2015-12-29 14:02:59.711211 	 ClientGui 	 Exiting...

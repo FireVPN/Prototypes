@@ -1,0 +1,9 @@
+DEBUG:root:2015-12-29 17:05:07.032531 	 ClientGui 	 Initial setup completed
+DEBUG:root:2015-12-29 17:05:10.664863 	 ClientGui 	 Name: 123
+DEBUG:root:2015-12-29 17:05:16.717687 	 ClientGui 	 Server: 10.0.0.14
+DEBUG:root:2015-12-29 17:05:16.725460 	 ClientGui 	 Socket setup completed
+DEBUG:root:2015-12-29 17:05:16.725971 	 ClientGui 	 ControllerThread setup completed
+DEBUG:root:2015-12-29 17:05:16.726225 	 CThread 	 Login sent to Server
+DEBUG:root:2015-12-29 17:05:16.726455 	 ClientGui 	 ReceiverThread setup completed
+DEBUG:root:2015-12-29 17:05:24.005868 	 RThread 	 Connection request from ('Benis', '10.0.0.4', 7777)
+DEBUG:root:2015-12-29 17:05:27.877377 	 ClientGui 	 Agreed to client connection
