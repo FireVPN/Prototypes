@@ -22,6 +22,8 @@ class Punching_Accept(QThread):
         self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
         self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.synsock.bind((LOCAL_IP,LOCAL_PORT))
+
+    def run(self):
         self.synsock.listen(5)
         debug(self, "Socket for incoming SYN Packets is listening")
         conn_sock, addr=self.synsock.accept()
@@ -36,13 +38,16 @@ class Punching_Accept(QThread):
 class Syn_Flood:
     def __init__(self, partner):
         debug(self, "Initialising Socket for SYN Flooding")
+        self.partner=partner
         self.floodsock=socket.socket()
         self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
         self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.floodsock.bind((LOCAL_IP,LOCAL_PORT))
+
+    def run(self):
         #syn packete senden
-        while(self.floodsock.connect_ex(partner)): #SYN packets flooding
-            debug(self, "Sending SYN Packet to "+partner)
+        while(self.floodsock.connect_ex(self.partner)): #SYN packets flooding
+            debug(self, "Sending SYN Packet to "+self.partner)
         debug(self, "Connection established")
         print ("connected")
 
@@ -99,6 +104,8 @@ class CThread(QThread):
             print ("Could not send connect.")
 
     def testFW(self, heuristic, ip, port):
+        debug(self, "Prepareing punch, choosen heuristic is "+str(heuristic))
+
         """
         0: received
         1: received+1
@@ -107,36 +114,37 @@ class CThread(QThread):
         """
         if heuristic not in (0, 1, 2, 3):
             return
+
         self.syn_listening=Punching_Accept()
+        self.syn_listening.run()
         if heuristic is 0:
             partner = (ip, port)
-            debug(self, "trying heuristic "+heuristic+" (connect to the same port)")
+            debug(self, "trying heuristic "+str(heuristic)+" (connect to the same port)")
             self.syn_flooding=Syn_Flood(partner)
+            self.syn_flooding.run()
         elif heuristic is 1:
             partner = (ip, port+1)
             self.syn_flooding.__del__()
-            debug(self, "trying heuristic "+heuristic+" (connect to the port+1)")
+            debug(self, "trying heuristic "+str(heuristic)+" (connect to the port+1)")
             self.syn_flooding=Syn_Flood(partner)
+            self.syn_flooding.run()
         elif heuristic is 2:
             partner = (ip, port-1)
             self.syn_flooding.__del__()
-            debug(self, "trying heuristic "+heuristic+" (connect to the port-1)")
+            debug(self, "trying heuristic "+str(heuristic)+" (connect to the port-1)")
             self.syn_flooding=Syn_Flood(partner)
+            self.syn_flooding.run()
         elif heuristic is 3:
             self.syn_listening.__del__()
             partner = self.SERV
             self.socket.send(('X'+';'+self.name + ';').encode('utf-8'))
             self.syn_flooding.__del__()
-            debug(self, "trying to relay, sending X to Server")
+            debug(self, "trying to relay, sending X to Server, heutistic is "+str(heuristic))
             print ("sending X to ", partner)
 
         #TCP sockets erzeugen (listen +  syn flood)
         #!self.socket.sendto(('X'+';'+self.name + ';')
         #                   .encode('utf-8'), partner)
-
-
-
-
 
 
 #class ClientSender(QThread):
