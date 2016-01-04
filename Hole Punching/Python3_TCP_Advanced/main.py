@@ -6,12 +6,13 @@ import widget
 import pickle
 import logging
 import datetime
+import random
 
 
 SERV_IP = "127.0.0.1"
 SERV_PORT = 45678
 LOCAL_IP="0.0.0.0"
-LOCAL_PORT=7777
+LOCAL_PORT=random.randint(4096, 65535)
 
 
 class CThread(QThread):
@@ -25,6 +26,7 @@ class CThread(QThread):
 
     def __del__(self):
         self.socket.send(('E').encode('utf-8'))
+        debug(self, "logged out from server")
         self.socket.close()
         debug(self, "closed socket")
         self.wait()
