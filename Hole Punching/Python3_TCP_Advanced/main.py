@@ -41,6 +41,10 @@ class Syn_Flood:
         self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.floodsock.bind((LOCAL_IP,LOCAL_PORT))
         #syn packete senden
+        while(self.floodsock.connect_ex(partner)): #SYN packets flooding
+            debug(self, "Sending SYN Packet to "+partner)
+        debug(self, "Connection established")
+        print ("connected")
 
 
     def __del__(self):
