@@ -7,12 +7,45 @@ import pickle
 import logging
 import datetime
 import random
+import time
 
 
 SERV_IP = "127.0.0.1"
 SERV_PORT = 45678
 LOCAL_IP="0.0.0.0"
 LOCAL_PORT=random.randint(4096, 65535)
+
+class Punching_Accept(QThread):
+    def __init__(self):
+        debug(self, "Initialising Socket for incoming SYN Packets")
+        self.synsock=socket.socket()
+        self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+        self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        self.synsock.bind((LOCAL_IP,LOCAL_PORT))
+        self.synsock.listen(5)
+        debug(self, "Socket for incoming SYN Packets is listening")
+        conn_sock, addr=self.synsock.accept()
+        debug(self, "Accepted connection from: "+addr)
+        print ("worked, connnection established with "+addr)
+
+
+    def __del__(self):
+        self.synsock.close()
+        debug(self, "Closed Socket for incoming SYN Packets")
+
+class Syn_Flood:
+    def __init__(self, partner):
+        debug(self, "Initialising Socket for SYN Flooding")
+        self.floodsock=socket.socket()
+        self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+        self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        self.floodsock.bind((LOCAL_IP,LOCAL_PORT))
+        #syn packete senden
+
+
+    def __del__(self):
+        debug(self, "closeing socket, trying other heuristic")
+        self.floodsock.close()
 
 
 class CThread(QThread):
@@ -66,19 +99,32 @@ class CThread(QThread):
         0: received
         1: received+1
         2: received-1
-        3: serveri
+        3: server-relay
         """
         if heuristic not in (0, 1, 2, 3):
             return
+        self.syn_listening=Punching_Accept()
         if heuristic is 0:
             partner = (ip, port)
+            debug(self, "trying heuristic "+heuristic+" (connect to the same port)")
+            self.syn_flooding=Syn_Flood(partner)
         elif heuristic is 1:
             partner = (ip, port+1)
+            self.syn_flooding.__del__()
+            debug(self, "trying heuristic "+heuristic+" (connect to the port+1)")
+            self.syn_flooding=Syn_Flood(partner)
         elif heuristic is 2:
             partner = (ip, port-1)
+            self.syn_flooding.__del__()
+            debug(self, "trying heuristic "+heuristic+" (connect to the port-1)")
+            self.syn_flooding=Syn_Flood(partner)
         elif heuristic is 3:
+            self.syn_listening.__del__()
             partner = self.SERV
-        print ("sending X to ", partner)
+            self.socket.send(('X'+';'+self.name + ';').encode('utf-8'))
+            self.syn_flooding.__del__()
+            debug(self, "trying to relay, sending X to Server")
+            print ("sending X to ", partner)
 
         #TCP sockets erzeugen (listen +  syn flood)
         #!self.socket.sendto(('X'+';'+self.name + ';')
@@ -369,11 +415,9 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         debug(self, "Connecting to "+str(self.partner))
         if not tested:
             for j in range(0, 2, 1):
-                for i in range(0, 5, 1):
-                    # if self.cs is not None:
-                    #     print ("using:", self.cs.partner)
-                    #     break
-                    self.controller.testFW(j, self.partner[1], self.partner[2])
+                self.controller.testFW(j, self.partner[1], self.partner[2])
+                debug(self, "waiting 2.5 seconds until other heuristic is taken")
+                time.sleep(2.5)
         else:
             self.controller.testFW(3, self.partner[1], self.partner[2])
 
