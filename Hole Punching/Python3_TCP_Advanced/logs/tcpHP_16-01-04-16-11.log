@@ -1,7 +1,0 @@
-DEBUG:root:2016-01-04 16:11:27.901928 	 ClientGui 	 Initial setup completed
-DEBUG:root:2016-01-04 16:11:31.227748 	 ClientGui 	 Name: 1234
-DEBUG:root:2016-01-04 16:11:59.251569 	 ClientGui 	 Server: 10.0.0.14
-DEBUG:root:2016-01-04 16:11:59.261353 	 ClientGui 	 Socket setup completed
-DEBUG:root:2016-01-04 16:11:59.261815 	 ClientGui 	 ControllerThread setup completed
-DEBUG:root:2016-01-04 16:11:59.262046 	 CThread 	 Login sent to Server
-DEBUG:root:2016-01-04 16:11:59.262294 	 ClientGui 	 ReceiverThread setup completed
