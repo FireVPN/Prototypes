@@ -11,7 +11,7 @@ EXT=("10.0.0.1", 6222)
 INT=("127.0.0.1", 6221)
 
 #Immer 0
-LOCALVPNPORT=0
+localvpnport=0
 
 
 socket_int_rec = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -24,7 +24,7 @@ socket_ext_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 socket_ext_rec.bind(EXT)
 
 def int_to_ext():
-    global LOCALVPNPORT
+    global localvpnport
     global SERVER
     global LOCALVPN
     global socket_int_rec
@@ -37,7 +37,7 @@ def int_to_ext():
         print("int to ext")
 
 def ext_to_int():
-    global LOCALVPNPORT
+    global localvpnport
     global SERVER
     global LOCALVPN
     global socket_int_send

@@ -38,6 +38,9 @@ else:
     else:
         print("Falsches Server/Client Argument!")
         sys.exit(1)
+    else:
+        print("Falsches TCP/UDP Argument!")
+        sys.exit(1)
 """
 
 
@@ -73,6 +76,9 @@ else:
         SERVER=False
     else:
         print("Falsches Server/Client Argument!")
+        sys.exit(1)
+    else:
+        print("Falsches TCP/UDP Argument!")
         sys.exit(1)
 """
 

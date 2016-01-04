@@ -1,29 +1,25 @@
 __author__ = 'Elias Eckenfellner'
-import argparse
-import sys
-import asyncio
-import signal
-import socket
 
-#Ob Proxy auf der Server- oder Client-Seite läuft
+import socket, sys, threading, asyncio
+
 SERVER=True
-#Gegenüber
-PEER_IP="10.0.0.2"
-#Eigene externe IP
-EXT_IP="10.0.0.1"
+PEER=("10.0.0.2", 6222)
+LOCALVPN=("localhost", 6220)
 
-##########
-#Statisch#
-##########
-#Externer Port beider Seiten
-PORTEXT=6222
-#Interne IP und Port(Localhost)
-INT=("127.0.0.1", 6221)
-#Interne IP und Port des VPN-Servers/Clients(Localhost)  --- Port bei Client unbekannt
-LOCALVPN=("127.0.0.1", 6220)
+EXT=("10.0.0.1", 6222)
+INT=("localhost", 6221)
 
-PEER=(PEER_IP, PORTEXT)
-EXT=(EXT_IP, PORTEXT)
+#Immer 0
+localvpnport=0
+
+#socket_int_rec2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#socket_int_rec2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+#socket_int_rec2.bind(INT)
+
+#except:
+    #print ("Could not set up EXT socket.")
+    #sys.exit(1)
+
 
 #Socket um bei "int to ext" ext zu senden
 ext=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -51,8 +47,12 @@ class Intern:
       print("int to ext")
       if(SERVER is False and localvpnport is not 0):
           localvpnport=addr[1]
-       #Am Outside-Sockel senden
-      ext.sendto(data, PEER)
+      #Am Outside-Sockel sende
+      try:
+        ext.sendto(data, PEER)
+      except:
+          pass
+
 
   def error_received(self, exc):
       print('Error received:', exc)
@@ -73,9 +73,15 @@ class Extern:
       print("ext to int")
       #Am Inside-Sockel senden
       if(SERVER is False):
-          int.sendto(data, ("127.0.0.1", localvpnport))
+          try:
+            int.sendto(data, ("127.0.0.1", localvpnport))
+          except:
+              pass
       else:
-          int.sendto(data, LOCALVPN)
+          try:
+            int.sendto(data, LOCALVPN)
+          except:
+              pass
 
   def error_received(self, exc):
       print('Error received:', exc)
