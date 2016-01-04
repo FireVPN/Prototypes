@@ -24,6 +24,9 @@ class CThread(QThread):
         #print("Konstruktor von CThread durchlaufen")
 
     def __del__(self):
+        self.socket.send(('E').encode('utf-8'))
+        self.socket.close()
+        debug(self, "closed socket")
         self.wait()
 
     def run(self):
@@ -97,6 +100,8 @@ class RThread(QThread):
 
 
     def __del__(self):
+        self.socket.close()
+        debug(self, "closed socket")
         self.wait()
 
     def run(self):
