@@ -35,7 +35,7 @@ class Punching_Accept(QThread):
         self.synsock.close()
         debug(self, "Closed Socket for incoming SYN Packets")
 
-class Syn_Flood:
+class Syn_Flood(QThread):
     def __init__(self, partner):
         debug(self, "Initialising Socket for SYN Flooding")
         self.partner=partner
@@ -265,7 +265,7 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         #except:
         #    exception(self, "Socket setup failed")
         #    sys.exit(1)
-        debug(self, "Socket setup completed")
+        debug(self, "Socket setup for Server connection completed")
 
         # Controller
         self.controller = CThread(self.sock, self.name)
@@ -428,8 +428,6 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         if not tested:
             for j in range(0, 2, 1):
                 self.controller.testFW(j, self.partner[1], self.partner[2])
-                debug(self, "waiting 2.5 seconds until other heuristic is taken")
-                time.sleep(2.5)
         else:
             self.controller.testFW(3, self.partner[1], self.partner[2])
 
