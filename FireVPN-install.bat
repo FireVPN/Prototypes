@@ -5,22 +5,24 @@ exit /b
 cd > temp.txt
 set /p STARTDIR=<temp.txt
 del temp.txt
-echo -----OpenVPN herunterladen-----
-bitsadmin /transfer FireVPN /download /priority high http://www.openvpn.net/release/openvpn-2.1.3-install.exe c:\openvpn-install.exe
-echo -----OpenVPN installieren-----
-c:\openvpn-install.exe /SELECT_OPENSSL_UTILITIES=1 /SELECT_EASYRSA=1 /S
+if %PROCESSOR_ARCHITECTURE%==x86 (
+  set "progfiles=C:\Program Files"
+) else (
+  set "progfiles=C:\Program Files (x86)"
+)
+echo -----Ueberpruefen, ob OpenVPN installiert ist-----
+if exist %progfiles%\OpenVPN\bin\openvpn.exe (
+    -----OpenVPN ist bereits installiert-----
+) else (
+    echo -----OpenVPN herunterladen-----
+    bitsadmin /transfer FireVPN /download /priority high http://www.openvpn.net/release/openvpn-2.1.3-install.exe c:\openvpn-install.exe
+    echo -----OpenVPN installieren-----
+    c:\openvpn-install.exe /SELECT_OPENSSL_UTILITIES=1 /SELECT_EASYRSA=1 /S
+)
 echo -----OpenVPN konfigurieren-----
-if %PROCESSOR_ARCHITECTURE%==x86 (
-  cd "C:\Program Files\OpenVPN\easy-rsa"
-) else (
-  cd "C:\Program Files (x86)\OpenVPN\easy-rsa"
-)
+cd %progfiles%\OpenVPN\easy-rsa"
 call init-config
-if %PROCESSOR_ARCHITECTURE%==x86 (
-  echo set HOME="C:\Program Files\OpenVPN\easy-rsa"> vars.bat
-) else (
-  echo set HOME="C:\Program Files (x86)\OpenVPN\easy-rsa"> vars.bat
-)
+echo set HOME="%progfiles%\OpenVPN\easy-rsa"> vars.bat
 echo set KEY_CONFIG=openssl.cnf>> vars.bat
 echo set KEY_DIR=.\keys>> vars.bat
 echo set KEY_SIZE=1024>> vars.bat
