@@ -8,6 +8,7 @@ import logging
 import datetime
 import random
 import time
+import platform
 
 
 SERV_IP = "127.0.0.1"
@@ -21,7 +22,8 @@ class Punching_Accept(QThread):
         debug(self, "Initialising Socket for incoming SYN Packets")
         self.synsock=socket.socket()
         self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-        self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        if("Windows" not in platform.platform()):
+            self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.synsock.bind((LOCAL_IP,LOCAL_PORT))
 
     def run(self):
@@ -42,7 +44,8 @@ class Syn_Flood(QThread):
         self.partner=partner
         self.floodsock=socket.socket()
         self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-        self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        if("Windows" not in platform.platform()):
+            self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.floodsock.bind((LOCAL_IP,LOCAL_PORT))
 
     def run(self):
@@ -268,7 +271,8 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         #try:
         self.sock = socket.socket()
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        if("Windows" not in platform.platform()):
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.sock.bind((LOCAL_IP,LOCAL_PORT))
         while(self.sock.connect_ex((SERV_IP,SERV_PORT))): #SYN packets flooding
             pass
@@ -327,7 +331,8 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         try:
             self.sock = socket.socket()
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+            if("Windows" not in platform.platform()):
+                self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
             self.sock.bind((LOCAL_IP,LOCAL_PORT))
         except:
             debug(self, "could not set up socket for server connection, exiting programm")
