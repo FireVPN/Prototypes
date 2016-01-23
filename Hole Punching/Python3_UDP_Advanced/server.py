@@ -33,29 +33,19 @@ class Receiver(threading.Thread):
             receivedData = data.decode('utf-8').split(';')
             indicator = receivedData[0]
             name = None
-            print ("NEW MESSAGE")
-            print (host)
-            print (loginsToServer)
             for l in loginsToServer:
                 if host == l[1] and port == l[2]:
                     name = l[0]
 
-
-            # more tests needed?
-            #if not receivedData[0] == "H" and not receivedData[0] == "E" and not receivedData[0] == "X" and not receivedData[0] == "Y":
             if indicator == "M":
-                print (name)
-                print (connections)
                 for c in connections:
                     if name == c[0]:
                         for l in loginsToServer:
-                            #print ("1")
                             if l[0] == c[1]:
                                 self.sock.sendto(data, (l[1], l[2]))
                                 continue
                     elif name == c[1]:
                         for l in loginsToServer:
-                            #print ("2")
                             if l[0] == c[0]:
                                 self.sock.sendto(data, (l[1], l[2]))
                                 continue
@@ -109,7 +99,7 @@ class Receiver(threading.Thread):
                 print (receivedData[1], " wants to connect to ", receivedData[2])
                 for c in loginsToServer:
                     if c[0] == receivedData[2]:
-                        connections.add((receivedData[1], None, False))
+                        connections.add((receivedData[1], None, False, False))
                         self.sock.sendto(('C'+';'+(pickle.dumps(c).decode('ISO-8859-1'))).encode(),(host, port))
                         self.sock.sendto(('Q'+';'+(pickle.dumps((receivedData[1], host, port)).decode('ISO-8859-1'))).encode(),(c[1], c[2]))
 
@@ -117,30 +107,29 @@ class Receiver(threading.Thread):
                 print (receivedData[1], " agrees to ", receivedData[2])
                 for connection in connections:
                     if connection[0] == receivedData[2]:
-                        connections.remove(connection)
-                        connection = (receivedData[2], receivedData[1], False)
-                        connections.add(connection)
-                        for c in loginsToServer:
-                            if c[0] == receivedData[1] or c[0] == receivedData[2]:
-                                self.giveStart(c)
+                        if not connection[3]:
+                            connections.remove(connection)
+                            new_connection = (receivedData[2], receivedData[1], False, True)
+                            connections.add(new_connection)
+                            for c in loginsToServer:
+                                if c[0] == new_connection[0] or c[0] == new_connection[1]:
+                                    print ("Start for ", c)
+                                    self.giveStart(c)
 
             elif indicator is 'X':
-                #print ("received X ", receivedData[1])
                 for connection in connections:
                     if connection[0] == receivedData[1]:
                         if connection[2]:
                             continue
-                        new_connection = (receivedData[1], connection[1], True)
+                        new_connection = (receivedData[1], connection[1], True, True)
                         connections.remove(connection)
                         connections.add(new_connection)
                         print (new_connection, " over server")
                         for l in loginsToServer:
                             print (l)
                             if new_connection[0] == l[0]:
-                                #print ("send x to ", (l[1], l[2]))
                                 self.sock.sendto(("X"+";").encode(), (l[1], l[2]))
                             elif new_connection[1] == l[0]:
-                                #print ("send x to ", (l[1], l[2]))
                                 self.sock.sendto(("X"+";").encode(), (l[1], l[2]))
 
 

@@ -10,11 +10,14 @@ import datetime
 
 SERV_IP = "127.0.0.1"
 SERV_PORT = 45678
+logger = logging.getLogger('udp_holepuncher')
+CONNECTED = False
 
 
 class CThread(QThread):
     def __init__(self, socket, name):
         QThread.__init__(self)
+        global logger
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
         self.name = name
@@ -26,14 +29,14 @@ class CThread(QThread):
     def connectToServer(self):
         try:
             self.socket.sendto(('L'+';'+self.name).encode('utf-8'), self.SERV)
-            debug(self, "Login sent to Server")
+            # debug(self, "Login sent to Server")
         except:
-            exception(self, "Could not send login")
+            # exception(self, "Could not send login")
             sys.exit(1)
 
     def connectToClient(self, partner):
         try:
-            print ("send connection request to server")
+            logger.debug("send connection request to server")
             self.socket.sendto(('C'+';'+self.name + ';' +
                                partner)
                                .encode('utf-8'), self.SERV)
@@ -56,18 +59,25 @@ class CThread(QThread):
         2: received-1
         3: serveri
         """
+        global CONNECTED
+        if CONNECTED:
+            print ("---------------------------------------------------")
+            return
         if heuristic not in (0, 1, 2, 3):
             return
         if heuristic is 0:
+            logger.debug("""Defined heuristic 1: same IP, same Port""")
             partner = (ip, port)
         elif heuristic is 1:
+            logger.debug("""Defined heuristic 2: same IP, Port+1""")
             partner = (ip, port+1)
         elif heuristic is 2:
+            logger.debug("""Defined heuristic 3: same IP, Port-1""")
             partner = (ip, port-1)
         elif heuristic is 3:
+            logger.debug("""Defined heuristic 2: Relaying over server""")
             partner = self.SERV
-        self.wait(1)
-        debug(self, "Sending punchingpacket to "+ str(partner))
+        logger.debug("Sending punchingpacket to "+ str(partner))
         self.socket.sendto(('X'+';'+self.name + ';')
                            .encode('utf-8'), partner)
 
@@ -76,6 +86,7 @@ class CThread(QThread):
 class ClientSender(QThread):
     def __init__(self, socket, name, partner, text):
         QThread.__init__(self)
+        global logger
         self.socket = socket
         self.partner = partner
         self.name = name
@@ -97,6 +108,7 @@ class ClientSender(QThread):
 class RThread(QThread):
     def __init__(self, socket):
         QThread.__init__(self)
+        global logger
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
         self.socket.settimeout(1)
@@ -112,13 +124,13 @@ class RThread(QThread):
             try:
                 if (answer == 0 and
                    (datetime.datetime.now()-timestamp).total_seconds() >= 3):
-                    exception(self, "Server unreachable")
+                    logger.exception("Server unreachable")
                     # Ugly exit
                     sys.exit(1)
                 if (fw_test == 1 and
                    (datetime.datetime.now()-timestamp).total_seconds() >= 5):
                     # timeout for server connection
-                   debug (self, "No punchingpacket received")
+                   debug ("No punchingpacket received")
                    self.emit(SIGNAL('testingFW(PyQt_PyObject)'), True)
                    fw_test = 0
 
@@ -139,16 +151,16 @@ class RThread(QThread):
                 elif indicator is 'C':
                     self.test = pickle.loads(receivedData[1]
                                              .encode('ISO-8859-1'))
-                    print ("Partner received:", self.test[1], self.test[2])
+                    logger.debug("Partner received: " + str(self.test[1]) + str(self.test[2]))
                     self.emit(SIGNAL('cPartner(PyQt_PyObject)'), self.test)
                 elif indicator is 'Q':
                     self.test = pickle.loads(receivedData[1]
                                              .encode('ISO-8859-1'))
-                    debug(self, "Connection request from "+str(self.test))
+                    logger.debug("Connection request from "+str(self.test))
                     self.emit(SIGNAL('showConnectionDialog(PyQt_PyObject)'),
                               (self.test[0], self.test[1], self.test[2]))
                 elif indicator is 'S':
-                    debug(self, "Received start to test firewall")
+                    logger.debug("Received start to test firewall")
                     timestamp = datetime.datetime.now()
                     fw_test = 1
                     self.emit(SIGNAL('testingFW(PyQt_PyObject)'), False)
@@ -156,7 +168,7 @@ class RThread(QThread):
                     # Absicherung Überprüfen ob richtige IP nötig
                     self.emit(SIGNAL('cText(QString)'), receivedData[2])
                 elif indicator is 'X':
-                    debug(self, "Received punchingpacket from "+str((host, port)))
+                    logger.debug("Received punchingpacket from "+str((host, port)))
                     fw_test = 0
                     # Absicherung Überprüfen ob richtige IP nötig
                     self.emit(SIGNAL('received(PyQt_PyObject)'),
@@ -171,6 +183,7 @@ class RThread(QThread):
 class HeartbeatThread(QThread):
     def __init__(self, socket):
         QThread.__init__(self)
+        global logger
         self.SERV = (SERV_IP, SERV_PORT)
         self.socket = socket
 
@@ -186,12 +199,10 @@ class HeartbeatThread(QThread):
 class ClientGui(QtGui.QWidget, widget.Ui_Widget):
     def __init__(self):
         super(self.__class__, self).__init__()
+        global logger
         self.setupUi(self)
 
-        # Logging
-        filename = "logs/udpHP_"+datetime.datetime.now().strftime("%y-%m-%d-%H-%M-%S")+".log"
-        logging.basicConfig(filename=filename, level=logging.DEBUG)
-
+        logger.debug('Started new Hole Puncher instance.')
         # disable buttons
         self.pushButton_3.setEnabled(False)
         self.pushButton_4.setEnabled(False)
@@ -199,26 +210,26 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         # connect buttons
         self.pushButton_3.clicked.connect(self.connectToClient)
         self.pushButton_4.clicked.connect(self.connectToClient)
-        debug(self, "Initial setup completed")
+        logger.debug("Initial setup completed")
 
         # Name Dialog
         self.name = self.showNameDialog()
-        debug(self, "Name: "+self.name)
+        logger.debug("Name: "+self.name)
         # Server Dialog
         global SERV_IP
         SERV_IP = self.showServerDialog()
-        debug(self, "Server: "+SERV_IP)
+        logger.debug("Server: "+SERV_IP+", "+str(SERV_PORT))
 
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except:
-            exception(self, "Socket setup failed")
+            logger.exception("Socket setup failed")
             sys.exit(1)
-        debug(self, "Socket setup completed")
+        logger.debug("Socket setup completed")
 
         # Controller
         self.controller = CThread(self.sock, self.name)
-        debug(self, "ControllerThread setup completed")
+        logger.debug("ControllerThread setup completed")
         self.controller.connectToServer()
         self.connect(self.textBrowser_2,
                      SIGNAL("textChanged()"),
@@ -226,7 +237,7 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
 
         # Receiver
         self.receiver = RThread(self.sock)
-        debug(self, "ReceiverThread setup completed")
+        logger.debug("ReceiverThread setup completed")
         self.connect(self.receiver,
                      SIGNAL("add_names(PyQt_PyObject)"),
                      self.add_names)
@@ -251,9 +262,9 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
 
         # Heartbeater
         self.heartbeater = HeartbeatThread(self.sock)
-        debug(self, "HeartbeatThread setup completed")
+        logger.debug("HeartbeatThread setup completed")
         self.heartbeater.start()
-        debug(self, "Heartbeater started")
+        logger.debug("Heartbeater started")
 
         # ClientSender
         self.cs = None
@@ -331,6 +342,7 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         text, ok = QtGui.QInputDialog.getText(self,
                                               'UDP Hole Puncher NG',
                                               'Geben Sie einen Nicknamen ein:')
+
         if not ok:
             sys.exit()
         return text
@@ -365,11 +377,11 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
                                            "Ablehnen")
 
         if reply == 0:
-            debug(self, "Agreed to client connection")
+            logger.debug("Agreed to client connection")
             self.partner = partner
             self.controller.agree(partner)
         else:
-            debug(self, "Client connection refused")
+            debug("Client connection refused")
 
     def testFW(self, tested):
         if self.partner is None:
@@ -380,20 +392,21 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
             return
 
         if not tested:
-            debug(self, "Try to connect to "+str(self.partner) + " directly")
-            for j in range(0, 2, 1):
-                for i in range(0, 5, 1):
-                    if self.cs is not None:
-                        print ("using:", self.cs.partner)
-                        break
-                    self.controller.testFW(j, self.partner[1], self.partner[2])
+            logger.debug("Try to connect to "+str(self.partner[0]) + " directly")
+            for j in range(0, 3, 1):
+                # for i in range(0, 5, 1):
+                self.controller.testFW(j, self.partner[1], self.partner[2])
         else:
-            debug(self, "Try to connect to "+str(self.partner) + " over server")
+            logger.debug("Try to connect to "+ str(self.partner) + " over server")
             self.controller.testFW(3, self.partner[1], self.partner[2])
 
 
     def received(self, partner):
+        global CONNECTED
         if self.cs is None:
+            CONNECTED = True
+            self.cs = ClientSender(self.sock, self.name, partner,
+                                   self.textBrowser_2.toPlainText())
             self.pushButton_3.setEnabled(False)
             self.comboBox.setEnabled(False)
             self.cs = ClientSender(self.sock, self.name, partner,
@@ -415,18 +428,37 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
     def changePartner(self, partner):
         self.partner = partner
 
+def setupLogging():
+    global logger
+    # logging
+    filename = "UDP_Holepuncher.log"
 
-def debug(obj, msg):
-    logging.debug(('{0} \u0009 {1} \u0009 {2}').format(datetime.datetime.now(), type(obj).__name__, msg))
+    # StreamHandler
+    streamHandler = logging.StreamHandler()
 
-def exception(obj, msg):
-    logging.error(('{0} \u0009 {1} \u0009 {2}').format(datetime.datetime.now(), type(obj).__name__, msg))
-    logging.debug(('{0} \u0009 {1} \u0009 {2}').format(datetime.datetime.now(), type(obj).__name__, "Exiting..."))
+    # FileHandler
+    fileHandler = logging.FileHandler(filename)
+
+    # formatting
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    streamHandler.setFormatter(formatter)
+    fileHandler.setFormatter(formatter)
+
+    # add handler
+    logger.addHandler(streamHandler)
+    logger.addHandler(fileHandler)
+
+    logger.setLevel(logging.DEBUG)
+
+    streamHandler.setLevel(logging.DEBUG)
+    fileHandler.setLevel(logging.DEBUG)
+
 
 def main():
     app = QtGui.QApplication(sys.argv)  # A new instance of QApplication
     app.setWindowIcon(QtGui.QIcon('icon.png'))  # Set Window Icon
     app.setStyle('cleanlook')
+    setupLogging() # set up logging
     form = ClientGui()  # We set the form to be our ExampleApp (design)
     form.show()  # Show the form
     app.exec_()  # and execute the app

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/FireVPN.iml" filepath="$PROJECT_DIR$/.idea/FireVPN.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/firevpn.iml" filepath="$PROJECT_DIR$/.idea/firevpn.iml" />
     </modules>
   </component>
 </project>
