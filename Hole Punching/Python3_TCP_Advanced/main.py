@@ -8,25 +8,28 @@ import logging
 import datetime
 import random
 import time
+import platform
 
 
 SERV_IP = "127.0.0.1"
 SERV_PORT = 45678
 LOCAL_IP="0.0.0.0"
 LOCAL_PORT=random.randint(4096, 65535)
+CONNECTED_TO_PEER_SOCK=""
 
 class Punching_Accept(QThread):
     def __init__(self):
         debug(self, "Initialising Socket for incoming SYN Packets")
         self.synsock=socket.socket()
         self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-        self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        if("Windows" not in platform.platform()):
+            self.synsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.synsock.bind((LOCAL_IP,LOCAL_PORT))
 
     def run(self):
         self.synsock.listen(5)
-        debug(self, "Socket for incoming SYN Packets is listening")
-        conn_sock, addr=self.synsock.accept()
+        debug(self, "Socket for incoming SYN Packets is listening on "+LOCAL_IP+":"+LOCAL_PORT)
+        CONNECTED_TO_PEER_SOCK, addr=self.synsock.accept()
         debug(self, "Accepted connection from: "+addr)
         print ("worked, connnection established with "+addr)
 
@@ -41,14 +44,16 @@ class Syn_Flood(QThread):
         self.partner=partner
         self.floodsock=socket.socket()
         self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-        self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        if("Windows" not in platform.platform()):
+            self.floodsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.floodsock.bind((LOCAL_IP,LOCAL_PORT))
 
     def run(self):
         #syn packete senden
         while(self.floodsock.connect_ex(self.partner)): #SYN packets flooding
             debug(self, "Sending SYN Packet to "+self.partner)
-        debug(self, "Connection established")
+        CONNECTED_TO_PEER_SOCK=self.floodsock.dup()
+        debug(self, "Connection established with "+self.partner)
         print ("connected")
 
 
@@ -67,6 +72,7 @@ class CThread(QThread):
         #print("Konstruktor von CThread durchlaufen")
 
     def __del__(self):
+        debug(self, "making cleanup, programm is going to terminate")
         self.socket.send(('E').encode('utf-8'))
         debug(self, "logged out from server")
         self.socket.close()
@@ -139,7 +145,7 @@ class CThread(QThread):
             partner = self.SERV
             self.socket.send(('X'+';'+self.name + ';').encode('utf-8'))
             self.syn_flooding.__del__()
-            debug(self, "trying to relay, sending X to Server, heutistic is "+str(heuristic))
+            debug(self, "trying to relay, sending X to Server to initialise Relay, heutistic is "+str(heuristic))
             print ("sending X to ", partner)
 
         #TCP sockets erzeugen (listen +  syn flood)
@@ -161,7 +167,7 @@ class RThread(QThread):
 
     def __del__(self):
         self.socket.close()
-        debug(self, "closed socket")
+        debug(self, "closed socket, programm is going to stop")
         self.wait()
 
     def run(self):
@@ -191,24 +197,29 @@ class RThread(QThread):
 
                 if indicator is 'N':
                     answer = 1
+                    debug(self, "received N, going to show NamePresentDialog")
                     self.emit(SIGNAL('showNamePresentDialog()'))
                 elif indicator is 'R':
                     answer = 1
+                    debug(self, "received R, available users changed, sending new list to GUI for updateing")
                     self.names = pickle.loads(receivedData[1]
                                               .encode('ISO-8859-1'))
                     self.emit(SIGNAL('add_names(PyQt_PyObject)'), self.names)
                 elif indicator is 'C':
+                    debug(self, "received C, user wants to connect to other peer")
                     self.test = pickle.loads(receivedData[1]
                                              .encode('ISO-8859-1'))
                     print ("Partner received:", self.test[1], self.test[2])
                     self.emit(SIGNAL('cPartner(PyQt_PyObject)'), self.test)
                 elif indicator is 'Q':
+                    debug(self, "received Q, got a new Connection Request")
                     self.test = pickle.loads(receivedData[1]
                                              .encode('ISO-8859-1'))
                     debug(self, "Connection request from "+str(self.test))
                     self.emit(SIGNAL('showConnectionDialog(PyQt_PyObject)'),
                               (self.test[0], self.test[1], self.test[2]))
                 elif indicator is 'S':
+                    debug(self, "received S")
                     print ("S received")
                     timestamp = datetime.datetime.now()
                     fw_test = 1
@@ -218,6 +229,7 @@ class RThread(QThread):
                     self.emit(SIGNAL('cText(QString)'), receivedData[2])
                 elif indicator is 'X':
                     print ("X received from ", host, port)
+                    debug(self, "received X, from server, going to communicate over Server-Relay")
                     # Absicherung Überprüfen ob richtige IP nötig
                     self.emit(SIGNAL('received(PyQt_PyObject)'),
                               (host, port))
@@ -237,6 +249,7 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         # Logging
         filename = "logs/tcpHP_"+datetime.datetime.now().strftime("%y-%m-%d-%H-%M")+".log"
         logging.basicConfig(filename=filename, level=logging.DEBUG)
+        debug(self, "starting programm")
 
         # disable buttons
         self.pushButton_3.setEnabled(False)
@@ -258,7 +271,8 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         #try:
         self.sock = socket.socket()
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+        if("Windows" not in platform.platform()):
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
         self.sock.bind((LOCAL_IP,LOCAL_PORT))
         while(self.sock.connect_ex((SERV_IP,SERV_PORT))): #SYN packets flooding
             pass
@@ -316,11 +330,14 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
 
         try:
             self.sock = socket.socket()
-            self.to_srv_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
-            self.to_srv_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #Addresse wieder verwenden
+            if("Windows" not in platform.platform()):
+                self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1) #Port wieder verwenden
             self.sock.bind((LOCAL_IP,LOCAL_PORT))
         except:
+            debug(self, "could not set up socket for server connection, exiting programm")
             sys.exit(1)
+        debug(self, "socket set up for server connection, going to start controller thread")
 
         # Controller
         self.controller = CThread(self.sock, self.name)
@@ -330,6 +347,7 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
                      self.textChanged)
 
         # Receiver
+        debug(self, "going to start receiver Thread")
         self.receiver = RThread(self.sock)
         self.connect(self.receiver,
                      SIGNAL("add_names(PyQt_PyObject)"),
