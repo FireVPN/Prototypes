@@ -12,6 +12,7 @@ SERV_IP = "127.0.0.1"
 SERV_PORT = 45678
 logger = logging.getLogger('udp_holepuncher')
 CONNECTED = False
+CONNECTED_PEER = None
 
 
 class CThread(QThread):
@@ -59,10 +60,7 @@ class CThread(QThread):
         2: received-1
         3: serveri
         """
-        global CONNECTED
-        if CONNECTED:
-            print ("---------------------------------------------------")
-            return
+
         if heuristic not in (0, 1, 2, 3):
             return
         if heuristic is 0:
@@ -80,6 +78,7 @@ class CThread(QThread):
         logger.debug("Sending punchingpacket to "+ str(partner))
         self.socket.sendto(('X'+';'+self.name + ';')
                            .encode('utf-8'), partner)
+        self.sleep(1)
 
 
 
@@ -91,6 +90,7 @@ class ClientSender(QThread):
         self.partner = partner
         self.name = name
         self.text = text
+        logger.debug("Partner set to " + str(self.partner))
 
     def stop(self):
         self.terminate()
@@ -99,6 +99,7 @@ class ClientSender(QThread):
         self.text = text
 
     def run(self):
+        logger.debug("start to send text messages")
         while True:
             self.socket.sendto(('M'+';'+self.name + ';' + self.text)
                                .encode('utf-8'), self.partner)
@@ -120,6 +121,8 @@ class RThread(QThread):
         answer = 0
         fw_test = 0
         timestamp = datetime.datetime.now()
+        global CONNECTED
+        global CONNECTED_PEER
         while True:
             try:
                 if (answer == 0 and
@@ -130,7 +133,7 @@ class RThread(QThread):
                 if (fw_test == 1 and
                    (datetime.datetime.now()-timestamp).total_seconds() >= 5):
                     # timeout for server connection
-                   debug ("No punchingpacket received")
+                   logger.debug ("No punchingpacket received")
                    self.emit(SIGNAL('testingFW(PyQt_PyObject)'), True)
                    fw_test = 0
 
@@ -151,7 +154,7 @@ class RThread(QThread):
                 elif indicator is 'C':
                     self.test = pickle.loads(receivedData[1]
                                              .encode('ISO-8859-1'))
-                    logger.debug("Partner received: " + str(self.test[1]) + str(self.test[2]))
+                    logger.debug("Partner received: " + str(self.test[1]) +", "+ str(self.test[2]))
                     self.emit(SIGNAL('cPartner(PyQt_PyObject)'), self.test)
                 elif indicator is 'Q':
                     self.test = pickle.loads(receivedData[1]
@@ -163,11 +166,30 @@ class RThread(QThread):
                     logger.debug("Received start to test firewall")
                     timestamp = datetime.datetime.now()
                     fw_test = 1
+                    logger.debug(""" Topology probably looks like this:\n""" +
+                                "\t\t\t\tServer: " + SERV_IP + ", " + str(SERV_PORT)
+                                 +"""
+                                                 +-------+
+                                                 |SERVER |
+                                                 +-------+
+                                                     |
+                                                     |
+                                     +---------------+-----------+
+                                    +-|                         |-+
+                                    +-+                         +-+
+                                     |                           |
+                                     |                           |
+                                   +---+                     +-------+
+                                   |YOU|                     |PARTNER|
+                                   +---+                     +-------+
+                                 """+ "YOU: " + receivedData[1] + "\tPARTNER: " + receivedData[2])
                     self.emit(SIGNAL('testingFW(PyQt_PyObject)'), False)
                 elif indicator is 'M':
                     # Absicherung Überprüfen ob richtige IP nötig
                     self.emit(SIGNAL('cText(QString)'), receivedData[2])
                 elif indicator is 'X':
+                    CONNECTED = True
+                    CONNECTED_PEER = (host, port)
                     logger.debug("Received punchingpacket from "+str((host, port)))
                     fw_test = 0
                     # Absicherung Überprüfen ob richtige IP nötig
@@ -384,6 +406,8 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
             debug("Client connection refused")
 
     def testFW(self, tested):
+        global CONNECTED
+        global CONNECTED_PEER
         if self.partner is None:
             return
         if self.cs is not None:
@@ -395,22 +419,24 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
             logger.debug("Try to connect to "+str(self.partner[0]) + " directly")
             for j in range(0, 3, 1):
                 # for i in range(0, 5, 1):
-                self.controller.testFW(j, self.partner[1], self.partner[2])
+                if not CONNECTED:
+                    self.controller.testFW(j, self.partner[1], self.partner[2])
+                if not CONNECTED and j == 0:
+                    self.controller.testFW(j, self.partner[1], self.partner[2])
+                if CONNECTED_PEER is not None and j == 0:
+                    self.controller.testFW(j, CONNECTED_PEER[0], CONNECTED_PEER[1])
+                    break
         else:
             logger.debug("Try to connect to "+ str(self.partner) + " over server")
             self.controller.testFW(3, self.partner[1], self.partner[2])
 
 
     def received(self, partner):
-        global CONNECTED
         if self.cs is None:
-            CONNECTED = True
             self.cs = ClientSender(self.sock, self.name, partner,
                                    self.textBrowser_2.toPlainText())
             self.pushButton_3.setEnabled(False)
             self.comboBox.setEnabled(False)
-            self.cs = ClientSender(self.sock, self.name, partner,
-                                   self.textBrowser_2.toPlainText())
             self.connect(self.textBrowser_3, SIGNAL("textChanged(QString)"),
                          self.cs.changeText)
             self.startConnectionToClient()

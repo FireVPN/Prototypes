@@ -112,9 +112,16 @@ class Receiver(threading.Thread):
                             new_connection = (receivedData[2], receivedData[1], False, True)
                             connections.add(new_connection)
                             for c in loginsToServer:
-                                if c[0] == new_connection[0] or c[0] == new_connection[1]:
-                                    print ("Start for ", c)
-                                    self.giveStart(c)
+                                if c[0] == new_connection[0]:
+                                    for p in loginsToServer:
+                                        if p[0] == receivedData[1]:
+                                            print ("Start for ", c)
+                                            self.giveStart(c, p)
+                                elif c[0] == new_connection[1]:
+                                    for p in loginsToServer:
+                                        if p[0] == receivedData[2]:
+                                            print ("Start for ", c)
+                                            self.giveStart(c, p)
 
             elif indicator is 'X':
                 for connection in connections:
@@ -133,8 +140,9 @@ class Receiver(threading.Thread):
                                 self.sock.sendto(("X"+";").encode(), (l[1], l[2]))
 
 
-    def giveStart(self, c):
-        self.sock.sendto(("S"+";").encode(), (c[1], c[2]))
+    def giveStart(self, c, p):
+        print (p)
+        self.sock.sendto(("S"+";"+c[1]+", "+str(c[2])+";"+p[1]+", "+str(p[2])).encode(), (c[1], c[2]))
 
     def broadcast(self, obj):
         cache = obj.copy()
