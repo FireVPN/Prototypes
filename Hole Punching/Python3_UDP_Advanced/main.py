@@ -288,6 +288,8 @@ class ClientGui(QtGui.QWidget, widget.Ui_Widget):
         self.heartbeater.start()
         logger.debug("Heartbeater started")
 
+        logger.debug("IP address on socket: " + str(self.sock.getsockname()))
+
         # ClientSender
         self.cs = None
 
