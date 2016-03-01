@@ -21,22 +21,22 @@ class Init():
            self.int_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
        self.int_sock.bind(INT)
        if(not SERVER):
-           self.int_sock.listen(5)
-           connint, addr = self.int_sock.accept()
-           localvpnport=addr[1]
-           print("Verbindung zu VPN hergestellt")
-           self.ext_sock.connect(PEER)
-           print("Verbindung zu PEER hergestellt")
-           proxy_extern = Proxy(connint.dup(), self.ext_sock.dup())
+            self.int_sock.listen(5)
+            connint, addr = self.int_sock.accept()
+            localvpnport=addr[1]
+            print("Verbindung zu VPN hergestellt")
+            self.ext_sock.connect(PEER)
+            print("Verbindung zu PEER hergestellt")
+            proxy_extern = Proxy(connint.dup(), self.ext_sock.dup())
        else:
-           self.int_sock.connect(LOCALVPN)
-           print("Verbindung zu VPN hergestellt")
-           self.ext_sock.listen(5)
-           connext, addr = self.ext_sock.accept()
-           print("Verbindung zu PEER hergestellt")
-           proxy_intern = Proxy(self.int_sock.dup(), connext.dup())
-       tintern = threading.Thread(target=Proxy.intern)
-       textern = threading.Thread(target=Proxy.extern)
+            self.int_sock.connect(LOCALVPN)
+            print("Verbindung zu VPN hergestellt")
+            self.ext_sock.listen(5)
+            connext, addr = self.ext_sock.accept()
+            print("Verbindung zu PEER hergestellt")
+            proxy_intern = Proxy(self.int_sock.dup(), connext.dup())
+       tintern = threading.Thread(target=Proxy.intern(self))
+       textern = threading.Thread(target=Proxy.extern(self))
        tintern.start()
        textern.start()
 
@@ -46,8 +46,8 @@ class Proxy():
        self.ext_sock = ext_sock
    def intern(self):
        while True:
-           data = self.int_sock.recv(4096)
-           self.ext_sock.send(data)
+            data = self.int_sock.recv(4096)
+            self.ext_sock.send(data)
    def extern(self):
        while True:
            data = self.ext_sock.recv(4096)
