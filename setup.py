@@ -5,7 +5,7 @@ import subprocess
 import urllib.request
 import sys
 if _platform == "linux" or _platform == "linux2":
-    subprocess.call(["apt-get", "install", "openvpn", "easy-rsa", "python3-qt4", "-y"])
+    subprocess.call(["apt-get", "install", "openvpn", "easy-rsa", "python3-pyqt4", "-y"])
 elif _platform == "win32":
     print("PyQT wird heruntergeladen...")
     if(sys.maxsize > 2**32):
