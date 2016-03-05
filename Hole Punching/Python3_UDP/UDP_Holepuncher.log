@@ -1,0 +1,30 @@
+2016-01-28 10:50:29,508 - udp_holepuncher - DEBUG - Started new Hole Puncher instance.
+2016-01-28 10:50:29,509 - udp_holepuncher - DEBUG - Initial setup completed
+2016-01-28 10:50:31,579 - udp_holepuncher - DEBUG - Name: viktor
+2016-01-28 10:50:35,250 - udp_holepuncher - DEBUG - Server: 1.1.1.3, 45678
+2016-01-28 10:50:35,250 - udp_holepuncher - DEBUG - Socket setup completed
+2016-01-28 10:50:35,250 - udp_holepuncher - DEBUG - ControllerThread setup completed
+2016-01-28 10:50:35,258 - udp_holepuncher - DEBUG - ReceiverThread setup completed
+2016-01-28 10:50:35,260 - udp_holepuncher - DEBUG - HeartbeatThread setup completed
+2016-01-28 10:50:35,261 - udp_holepuncher - DEBUG - Heartbeater started
+2016-01-28 10:50:35,262 - udp_holepuncher - DEBUG - IP address on socket: ('0.0.0.0', 57579)
+2016-01-28 10:50:44,282 - udp_holepuncher - DEBUG - Started new Hole Puncher instance.
+2016-01-28 10:50:44,282 - udp_holepuncher - DEBUG - Initial setup completed
+2016-01-28 10:50:45,582 - udp_holepuncher - DEBUG - Name: viktor
+2016-01-28 10:50:52,372 - udp_holepuncher - DEBUG - Server: 1.1.1.3, 45678
+2016-01-28 10:50:52,372 - udp_holepuncher - DEBUG - Socket setup completed
+2016-01-28 10:50:52,373 - udp_holepuncher - DEBUG - ControllerThread setup completed
+2016-01-28 10:50:52,375 - udp_holepuncher - DEBUG - ReceiverThread setup completed
+2016-01-28 10:50:52,376 - udp_holepuncher - DEBUG - HeartbeatThread setup completed
+2016-01-28 10:50:52,376 - udp_holepuncher - DEBUG - Heartbeater started
+2016-01-28 10:50:52,376 - udp_holepuncher - DEBUG - IP address on socket: ('0.0.0.0', 37625)
+2016-01-28 10:59:29,315 - udp_holepuncher - DEBUG - Started new Hole Puncher instance.
+2016-01-28 10:59:29,315 - udp_holepuncher - DEBUG - Initial setup completed
+2016-01-28 10:59:30,967 - udp_holepuncher - DEBUG - Name: viktor
+2016-01-28 10:59:33,214 - udp_holepuncher - DEBUG - Server: 1.1.1.3, 45678
+2016-01-28 10:59:33,215 - udp_holepuncher - DEBUG - Socket setup completed
+2016-01-28 10:59:33,215 - udp_holepuncher - DEBUG - ControllerThread setup completed
+2016-01-28 10:59:33,221 - udp_holepuncher - DEBUG - ReceiverThread setup completed
+2016-01-28 10:59:33,222 - udp_holepuncher - DEBUG - HeartbeatThread setup completed
+2016-01-28 10:59:33,223 - udp_holepuncher - DEBUG - Heartbeater started
+2016-01-28 10:59:33,223 - udp_holepuncher - DEBUG - IP address on socket: ('0.0.0.0', 46176)

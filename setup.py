@@ -1,4 +1,3 @@
-__author__ = 'Elias Eckenfellner'
 from sys import platform as _platform
 from subprocess import check_output
 import subprocess
