@@ -2,3 +2,5 @@
 */*.xml
 ./idea
 ./idea/*.xml
+.bash_history
+.gitconfig
