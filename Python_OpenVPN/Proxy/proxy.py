@@ -1,4 +1,5 @@
 import socket, sys, threading, ipaddress
+from sys import platform as _platform
 
 #Programmkonstante
 localvpnport=0
@@ -94,6 +95,9 @@ try:
     socket_int_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     socket_int_rec.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     socket_int_send.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    if _platform == "linux" or _platform == "linux2":
+        socket_int_rec.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        socket_int_send.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     socket_int_rec.bind(INT)
     socket_int_send.bind(INT)
     #Performance
@@ -107,6 +111,9 @@ try:
     socket_ext_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     socket_ext_rec.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     socket_ext_send.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    if _platform == "linux" or _platform == "linux2":
+        socket_ext_rec.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        socket_ext_send.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     socket_ext_rec.bind(EXT)
     socket_ext_send.bind(EXT)
     #Performance
