@@ -55,7 +55,7 @@ echo .
 echo .
 echo server
 echo .
-echo .
+echo FireVPNPasswort
 echo .
 )| ..\bin\openssl.exe req -days 3650 -nodes -new -keyout %KEY_DIR%\server.key -out %KEY_DIR%\server.csr -config %KEY_CONFIG%
 (
@@ -71,7 +71,7 @@ echo .
 echo .
 echo client
 echo .
-echo .
+echo FireVPNPasswort
 echo .
 )| ..\bin\openssl.exe req -days 3650 -nodes -new -keyout %KEY_DIR%\client.key -out %KEY_DIR%\client.csr -config %KEY_CONFIG%
 (
