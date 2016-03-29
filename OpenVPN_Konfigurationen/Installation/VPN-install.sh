@@ -9,7 +9,9 @@ fi
 if [ $(dpkg-query -W -f='${Status}' easy-rsa 2>/dev/null | grep -c "ok installed") -eq 0 ];
 then
     echo "-----easy-rsa installieren-----"
-    apt-get install easy-rsa -y
+    apt-get install wget -y
+	wget http://ftp.at.debian.org/debian/pool/main/e/easy-rsa/easy-rsa_2.2.2-1_all.deb
+	dpkg --install easy-rsa_2.2.2-1_all.deb
 fi
 echo "-----OpenVPN konfigurieren-----"
 if [ "$1" = "server" ];then
@@ -41,9 +43,10 @@ if [ "$1" = "server" ];then
     echo 'export KEY_ALTNAMES="FireVPN"'>> vars
     echo 'export KEY_NAME="server"'>> vars
     mkdir -p keys
-    source ./vars
+    . ./vars
     ./clean-all
     printf "\n\n\n\n\n\n\n\n" | ./build-ca
     printf "\n\n\n\n\n\n\n\n\n\ny" | ./build-key-server --batch server
     printf "\n\n\n\n\n\n\n\n\n\ny" | ./build-key --batch client
+	./build-dh
 fi
